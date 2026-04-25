@@ -8,6 +8,7 @@ import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.LoginRequest;
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.RegisterRequest;
 import br.edu.ifpe.pdsc.investCalc.investCalc.entities.RefreshToken;
 import br.edu.ifpe.pdsc.investCalc.investCalc.entities.User;
+import br.edu.ifpe.pdsc.investCalc.investCalc.enums.Role;
 import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.EmailAlreadyExistsException;
 import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.InvalidPasswordException;
 import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.UserNotFoundException;
@@ -37,6 +38,7 @@ public class AuthService {
         user.setName(request.name());
         user.setEmail(request.email());
         user.setPassword(encryptedPassword);
+        user.setRole(Role.ROLE_USER);
 
         userRepository.save(user);
     }

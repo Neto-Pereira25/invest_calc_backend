@@ -2,6 +2,7 @@ package br.edu.ifpe.pdsc.investCalc.investCalc.security;
 
 import java.util.List;
 
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -25,7 +26,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
                 user.getPassword(),
-                List.of() // depois vamos colocar roles aqui
-        );
+                List.of(new SimpleGrantedAuthority(user.getRole().name())));
     }
 }

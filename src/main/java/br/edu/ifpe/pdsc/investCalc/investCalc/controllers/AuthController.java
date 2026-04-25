@@ -1,5 +1,6 @@
 package br.edu.ifpe.pdsc.investCalc.investCalc.controllers;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -52,8 +53,20 @@ public class AuthController {
         return new AuthResponse(newAccessToken, request.refreshToken());
     }
 
+    @GetMapping("/public")
+    public String publicRoute() {
+        return "ok";
+    }
+
+    @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping("/me")
     public String me(@AuthenticationPrincipal UserDetails user) {
         return user.getUsername();
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/admin")
+    public String adminRoute() {
+        return "admin";
     }
 }
