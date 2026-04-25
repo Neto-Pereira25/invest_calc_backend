@@ -1,5 +1,6 @@
 package br.edu.ifpe.pdsc.investCalc.investCalc.controllers;
 
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,5 +31,10 @@ public class AuthController {
     public ApiResponse<AuthResponse> login(@RequestBody @Valid LoginRequest request) {
         AuthResponse response = authService.login(request);
         return new ApiResponse<>(response, "Login realizado com sucesso");
+    }
+
+    @GetMapping("/test")
+    public ApiResponse<String> test() {
+        return new ApiResponse<>(null, "Rota protegida funcionando!");
     }
 }
