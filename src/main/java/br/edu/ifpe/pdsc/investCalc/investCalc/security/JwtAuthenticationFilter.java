@@ -2,7 +2,9 @@ package br.edu.ifpe.pdsc.investCalc.investCalc.security;
 
 import java.io.IOException;
 
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -17,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
+    private final CustomUserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -38,19 +41,26 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             String email = jwtService.extractEmail(token);
 
-            // Aqui ainda não usamos UserDetails (simplificado)
-            if (email != null) {
+            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                var auth = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
-                        email,
+                UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+
+                var auth = new UsernamePasswordAuthenticationToken(
+                        userDetails,
                         null,
-                        null);
+                        userDetails.getAuthorities());
 
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
 
+        } catch (io.jsonwebtoken.ExpiredJwtException e) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("Token expirado");
+            return;
         } catch (Exception e) {
-            // Token inválido → ignora (ou pode bloquear depois)
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("Token inválido");
+            return;
         }
 
         filterChain.doFilter(request, response);

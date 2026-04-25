@@ -2,6 +2,7 @@ package br.edu.ifpe.pdsc.investCalc.investCalc.security;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
@@ -12,6 +13,7 @@ import io.jsonwebtoken.security.Keys;
 @Service
 public class JwtService {
 
+    private static final long EXPIRATION_TIME = 1000 * 40;
     private final String SECRET = "minha-chave-super-secreta-minimo-32-bytes";
 
     private Key getSignKey() {
@@ -23,7 +25,7 @@ public class JwtService {
         return Jwts.builder()
                 .setSubject(email)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1h
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME)) // 1h
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -39,5 +41,9 @@ public class JwtService {
 
     public boolean isTokenValid(String token, String email) {
         return extractEmail(token).equals(email);
+    }
+
+    public String generateRefreshToken() {
+        return UUID.randomUUID().toString();
     }
 }

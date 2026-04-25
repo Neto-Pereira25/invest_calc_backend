@@ -6,12 +6,14 @@ import org.springframework.stereotype.Service;
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.AuthResponse;
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.LoginRequest;
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.RegisterRequest;
+import br.edu.ifpe.pdsc.investCalc.investCalc.entities.RefreshToken;
 import br.edu.ifpe.pdsc.investCalc.investCalc.entities.User;
 import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.EmailAlreadyExistsException;
 import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.InvalidPasswordException;
 import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.UserNotFoundException;
 import br.edu.ifpe.pdsc.investCalc.investCalc.repositories.UserRepository;
 import br.edu.ifpe.pdsc.investCalc.investCalc.security.JwtService;
+import br.edu.ifpe.pdsc.investCalc.investCalc.security.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -19,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 public class AuthService {
 
     private final JwtService jwtService;
+    private final RefreshTokenService refreshTokenService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -48,7 +51,8 @@ public class AuthService {
         }
 
         String token = jwtService.generateToken(user.getEmail());
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getEmail());
 
-        return new AuthResponse(token);
+        return new AuthResponse(token, refreshToken.getToken());
     }
 }
