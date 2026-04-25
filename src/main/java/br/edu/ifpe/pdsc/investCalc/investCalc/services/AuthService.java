@@ -11,12 +11,14 @@ import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.EmailAlreadyExistsExcep
 import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.InvalidPasswordException;
 import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.UserNotFoundException;
 import br.edu.ifpe.pdsc.investCalc.investCalc.repositories.UserRepository;
+import br.edu.ifpe.pdsc.investCalc.investCalc.security.JwtService;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
+    private final JwtService jwtService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -45,6 +47,8 @@ public class AuthService {
             throw new InvalidPasswordException();
         }
 
-        return new AuthResponse("TOKEN_FAKE");
+        String token = jwtService.generateToken(user.getEmail());
+
+        return new AuthResponse(token);
     }
 }
