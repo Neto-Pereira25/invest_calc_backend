@@ -9,6 +9,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.Optional;
 
@@ -91,5 +93,28 @@ public class RefreshTokenServiceTest {
         assertTrue(ex.getMessage().toLowerCase().contains("inv"));
 
         verify(refreshTokenRepository, never()).delete(any(RefreshToken.class));
+    }
+
+    @Test
+    void shouldThrowExceptionAndDeleteTokenWhenRefreshTokenIsExpired() {
+
+        // ARRANGE
+        String tokenValue = "refresh-token-valido";
+
+        RefreshToken refreshToken = new RefreshToken();
+        refreshToken.setToken(tokenValue);
+        refreshToken.setExpiration(Date.from(Instant.now().minus(1, ChronoUnit.DAYS))); // EXPIRADO
+
+        when(refreshTokenRepository.findByToken(tokenValue))
+                .thenReturn(Optional.of(refreshToken));
+
+        // ACT & ASSERT
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            refreshTokenService.validate(tokenValue);
+        });
+
+        assertEquals("Refresh token expirado", exception.getMessage());
+
+        verify(refreshTokenRepository).delete(refreshToken);
     }
 }

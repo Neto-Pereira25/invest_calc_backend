@@ -8,24 +8,29 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.AuthResponse;
+import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.GlobalExceptionHandler;
+import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.InvalidPasswordException;
 import br.edu.ifpe.pdsc.investCalc.investCalc.security.CustomUserDetailsService;
 import br.edu.ifpe.pdsc.investCalc.investCalc.security.JwtAuthenticationFilter;
 import br.edu.ifpe.pdsc.investCalc.investCalc.security.JwtService;
 import br.edu.ifpe.pdsc.investCalc.investCalc.security.RefreshTokenService;
 import br.edu.ifpe.pdsc.investCalc.investCalc.services.AuthService;
 
-@WebMvcTest(controllers = AuthController.class)
+@SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
+@Import(GlobalExceptionHandler.class)
 public class AuthControllerTest {
 
     @Autowired
@@ -116,5 +121,99 @@ public class AuthControllerTest {
                 .andExpect(jsonPath("$.data.token").value("access-token"))
                 .andExpect(jsonPath("$.data.refreshToken").value("refresh-token"))
                 .andExpect(jsonPath("$.message").exists());
+    }
+
+    @Test
+    @DisplayName("POST /auth/login - should return 400 with standard response when credentials are invalid")
+    void shouldReturnBadRequestWhenLoginFails() throws Exception {
+
+        // ARRANGE
+        when(authService.login(any()))
+                .thenThrow(new InvalidPasswordException());
+
+        String requestBody = """
+                {
+                    "email": "maria@email.com",
+                    "password": "senhaErrada"
+                }
+                """;
+
+        // ACT & ASSERT
+        mockMvc.perform(post("/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.data").isEmpty())
+                .andExpect(jsonPath("$.message").value("Senha invalida"));
+    }
+
+    @Test
+    @DisplayName("Should always return {data, message} on success.")
+    void shouldReturnStandardResponseOnSuccess() throws Exception {
+
+        // ARRANGE
+        when(authService.login(any()))
+                .thenReturn(new AuthResponse("token", "refresh"));
+
+        String requestBody = """
+                {
+                    "email": "teste@email.com",
+                    "password": "12345678"
+                }
+                """;
+
+        // ACT & ASSERT
+        mockMvc.perform(post("/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").exists())
+                .andExpect(jsonPath("$.message").exists());
+    }
+
+    @Test
+    @DisplayName("Should always return {data, message} on a business error.")
+    void shouldReturnStandardResponseOnBusinessError() throws Exception {
+
+        // ARRANGE
+        when(authService.login(any()))
+                .thenThrow(new InvalidPasswordException());
+
+        String requestBody = """
+                {
+                    "email": "teste@email.com",
+                    "password": "errada"
+                }
+                """;
+
+        // ACT & ASSERT
+        mockMvc.perform(post("/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.data").value(Matchers.nullValue()))
+                .andExpect(jsonPath("$.message").value("Senha invalida"));
+    }
+
+    @Test
+    @DisplayName("Should return a list of errors in the data field when validation fails")
+    void shouldReturnValidationErrorsInDataField() throws Exception {
+
+        // ARRANGE
+        String requestBody = """
+                {
+                    "email": "email-invalido",
+                    "password": ""
+                }
+                """;
+
+        // ACT & ASSERT
+        mockMvc.perform(post("/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.data").isArray())
+                .andExpect(jsonPath("$.message").value("Erro de validacao"));
     }
 }

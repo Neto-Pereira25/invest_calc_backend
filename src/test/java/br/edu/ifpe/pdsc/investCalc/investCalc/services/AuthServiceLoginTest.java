@@ -2,6 +2,7 @@ package br.edu.ifpe.pdsc.investCalc.investCalc.services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
@@ -17,6 +18,8 @@ import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.AuthResponse;
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.LoginRequest;
 import br.edu.ifpe.pdsc.investCalc.investCalc.entities.RefreshToken;
 import br.edu.ifpe.pdsc.investCalc.investCalc.entities.User;
+import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.InvalidPasswordException;
+import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.UserNotFoundException;
 import br.edu.ifpe.pdsc.investCalc.investCalc.repositories.UserRepository;
 import br.edu.ifpe.pdsc.investCalc.investCalc.security.JwtService;
 import br.edu.ifpe.pdsc.investCalc.investCalc.security.RefreshTokenService;
@@ -77,5 +80,48 @@ public class AuthServiceLoginTest {
                 assertEquals("refresh-token-fake", response.refreshToken());
         }
 
-        // Fazer os cenários de falha do login
+        @Test
+        void shouldThrowExceptionWhenPasswordIsInvalid() {
+
+                // ARRANGE
+                String email = "teste@email.com";
+                String rawPassword = "123456";
+                String encodedPassword = "senhaCriptografada";
+
+                User user = new User();
+                user.setEmail(email);
+                user.setPassword(encodedPassword);
+
+                when(userRepository.findByEmail(email))
+                                .thenReturn(Optional.of(user));
+
+                when(passwordEncoder.matches(rawPassword, encodedPassword))
+                                .thenReturn(false);
+
+                // ACT & ASSERT
+                InvalidPasswordException exception = assertThrows(InvalidPasswordException.class, () -> {
+                        authService.login(new LoginRequest(email, rawPassword));
+                });
+
+                assertEquals("Senha invalida", exception.getMessage());
+        }
+
+        @Test
+        void shouldThrowExceptionWhenUserNotFound() {
+
+                // ARRANGE
+                String email = "naoexiste@email.com";
+                String password = "123456";
+
+                // simula usuário NÃO encontrado
+                when(userRepository.findByEmail(email))
+                                .thenReturn(Optional.empty());
+
+                // ACT & ASSERT
+                UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> {
+                        authService.login(new LoginRequest(email, password));
+                });
+
+                assertEquals("Usuario nao encontrado", exception.getMessage());
+        }
 }
