@@ -90,7 +90,7 @@ public class AuthControllerTest {
                 .content(requestBody))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").value("Erro de validação"))
+                .andExpect(jsonPath("$.message").value("Erro de validacao"))
                 .andExpect(jsonPath("$.data").isArray());
     }
 
