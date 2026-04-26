@@ -43,14 +43,15 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public AuthResponse refresh(@RequestBody RefreshRequest request) {
+    public ApiResponse<AuthResponse> refresh(@RequestBody RefreshRequest request) {
 
         RefreshToken refreshToken = refreshTokenService.validate(request.refreshToken());
 
         String newAccessToken = jwtService.generateToken(
                 refreshToken.getUser().getEmail());
 
-        return new AuthResponse(newAccessToken, request.refreshToken());
+        return new ApiResponse<>(new AuthResponse(newAccessToken, request.refreshToken()),
+                "Token atualizado com sucesso");
     }
 
     @GetMapping("/public")
@@ -58,13 +59,13 @@ public class AuthController {
         return "ok";
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/me")
     public String me(@AuthenticationPrincipal UserDetails user) {
         return user.getUsername();
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin")
     public String adminRoute() {
         return "admin";
