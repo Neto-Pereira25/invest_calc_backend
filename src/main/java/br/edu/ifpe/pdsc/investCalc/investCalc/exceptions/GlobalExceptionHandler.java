@@ -46,7 +46,7 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.UNPROCESSABLE_ENTITY)
-                .body(new ApiResponse<>(errors, "Erro de validação"));
+                .body(new ApiResponse<>(errors, "Erro de validacao"));
     }
 
     @ExceptionHandler(Exception.class)
