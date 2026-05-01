@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.ApiResponse;
+import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.transaction.SubcategoryNotFoundException;
+import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.transaction.TransactionNotFoundException;
+import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.transaction.UnauthorizedTransactionAccessException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -65,5 +68,27 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
                 .body(new ApiResponse<>(null, "Acesso negado"));
+    }
+
+    @ExceptionHandler(TransactionNotFoundException.class)
+    public ResponseEntity<ApiResponse<Object>> handleTransactionNotFound(TransactionNotFoundException ex) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ApiResponse<>(null, ex.getMessage()));
+    }
+
+    @ExceptionHandler(UnauthorizedTransactionAccessException.class)
+    public ResponseEntity<ApiResponse<Object>> handleUnauthorizedTransactionAccess(
+            UnauthorizedTransactionAccessException ex) {
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(new ApiResponse<>(null, ex.getMessage()));
+    }
+
+    @ExceptionHandler(SubcategoryNotFoundException.class)
+    public ResponseEntity<ApiResponse<Object>> handleSubcategoryNotFound(SubcategoryNotFoundException ex) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ApiResponse<>(null, ex.getMessage()));
     }
 }

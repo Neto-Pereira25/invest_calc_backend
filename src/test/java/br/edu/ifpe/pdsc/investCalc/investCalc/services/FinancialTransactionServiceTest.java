@@ -29,6 +29,9 @@ import br.edu.ifpe.pdsc.investCalc.investCalc.entities.FinancialTransaction;
 import br.edu.ifpe.pdsc.investCalc.investCalc.entities.Subcategory;
 import br.edu.ifpe.pdsc.investCalc.investCalc.entities.User;
 import br.edu.ifpe.pdsc.investCalc.investCalc.enums.TransactionType;
+import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.transaction.SubcategoryNotFoundException;
+import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.transaction.TransactionNotFoundException;
+import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.transaction.UnauthorizedTransactionAccessException;
 import br.edu.ifpe.pdsc.investCalc.investCalc.repositories.FinancialTransactionRepository;
 import br.edu.ifpe.pdsc.investCalc.investCalc.repositories.SubcategoryRepository;
 
@@ -112,8 +115,8 @@ class FinancialTransactionServiceTest {
                                 .thenReturn(Optional.empty());
 
                 // ACT & ASSERT
-                RuntimeException exception = Assertions.assertThrows(
-                                RuntimeException.class,
+                SubcategoryNotFoundException exception = Assertions.assertThrows(
+                                SubcategoryNotFoundException.class,
                                 () -> transactionService.createFinancialTransaction(request, user));
 
                 assertEquals("Subcategoria nao encontrada", exception.getMessage());
@@ -191,8 +194,8 @@ class FinancialTransactionServiceTest {
                 when(transactionRepository.findById(transactionId))
                                 .thenReturn(Optional.empty());
 
-                RuntimeException exception = assertThrows(
-                                RuntimeException.class,
+                TransactionNotFoundException exception = assertThrows(
+                                TransactionNotFoundException.class,
                                 () -> transactionService.updateFinancialTransaction(transactionId, request, user));
 
                 assertEquals("Transacao nao encontrada", exception.getMessage());
@@ -211,11 +214,11 @@ class FinancialTransactionServiceTest {
                                 .thenReturn(Optional.of(transaction));
 
                 // ACT & ASSERT
-                RuntimeException exception = assertThrows(
-                                RuntimeException.class,
+                UnauthorizedTransactionAccessException exception = assertThrows(
+                                UnauthorizedTransactionAccessException.class,
                                 () -> transactionService.updateFinancialTransaction(transactionId, request, user));
 
-                assertEquals("Usuario nao autorizado a atualizar esta transacao", exception.getMessage());
+                assertEquals("Usuario nao autorizado a realizar esta operacao", exception.getMessage());
         }
 
         @Test
@@ -240,8 +243,8 @@ class FinancialTransactionServiceTest {
                 when(transactionRepository.findById(transactionId))
                                 .thenReturn(Optional.empty());
 
-                RuntimeException exception = assertThrows(
-                                RuntimeException.class,
+                TransactionNotFoundException exception = assertThrows(
+                                TransactionNotFoundException.class,
                                 () -> transactionService.deleteFinancialTransaction(transactionId, user));
 
                 assertEquals("Transacao nao encontrada", exception.getMessage());
@@ -258,10 +261,10 @@ class FinancialTransactionServiceTest {
                 when(transactionRepository.findById(transactionId))
                                 .thenReturn(Optional.of(transaction));
 
-                RuntimeException exception = assertThrows(
-                                RuntimeException.class,
+                UnauthorizedTransactionAccessException exception = assertThrows(
+                                UnauthorizedTransactionAccessException.class,
                                 () -> transactionService.deleteFinancialTransaction(transactionId, user));
 
-                assertEquals("Usuario nao autorizado a deletar esta transacao", exception.getMessage());
+                assertEquals("Usuario nao autorizado a realizar esta operacao", exception.getMessage());
         }
 }

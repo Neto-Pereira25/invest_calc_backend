@@ -20,6 +20,7 @@ import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.FinancialTransactionResponse;
 import br.edu.ifpe.pdsc.investCalc.investCalc.entities.User;
 import br.edu.ifpe.pdsc.investCalc.investCalc.services.FinancialTransactionService;
 import br.edu.ifpe.pdsc.investCalc.investCalc.services.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -32,7 +33,7 @@ public class FinancialTransactionController {
 
         @PostMapping
         public ApiResponse<FinancialTransactionResponse> createFinancialTransaction(
-                        @RequestBody FinancialTransactionRequest request,
+                        @Valid @RequestBody FinancialTransactionRequest request,
                         @AuthenticationPrincipal UserDetails userDetails) {
 
                 User user = userService.getAuthenticatedUser(userDetails);
@@ -59,7 +60,7 @@ public class FinancialTransactionController {
         @PutMapping("/{id}")
         public ResponseEntity<ApiResponse<FinancialTransactionResponse>> updateFinancialTransaction(
                         @PathVariable Long id,
-                        @RequestBody FinancialTransactionRequest request,
+                        @Valid @RequestBody FinancialTransactionRequest request,
                         @AuthenticationPrincipal UserDetails userDetails) {
                 User user = userService.getAuthenticatedUser(userDetails);
 
