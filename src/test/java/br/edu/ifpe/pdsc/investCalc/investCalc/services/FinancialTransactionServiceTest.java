@@ -1,11 +1,13 @@
 package br.edu.ifpe.pdsc.investCalc.investCalc.services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Assertions;
@@ -19,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.FinancialTransactionRequest;
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.FinancialTransactionResponse;
 import br.edu.ifpe.pdsc.investCalc.investCalc.entities.Category;
+import br.edu.ifpe.pdsc.investCalc.investCalc.entities.FinancialTransaction;
 import br.edu.ifpe.pdsc.investCalc.investCalc.entities.Subcategory;
 import br.edu.ifpe.pdsc.investCalc.investCalc.entities.User;
 import br.edu.ifpe.pdsc.investCalc.investCalc.enums.TransactionType;
@@ -97,5 +100,47 @@ class FinancialTransactionServiceTest {
                 () -> transactionService.createFinancialTransaction(request, user));
 
         assertEquals("Subcategoria não encontrada", exception.getMessage());
+    }
+
+    @Test
+    void shouldListTransactionsByUser() {
+
+        // ARRANGE
+        Category category = new Category();
+        category.setName("Alimentação");
+        category.setType(TransactionType.EXPENSE);
+
+        Subcategory subcategory = new Subcategory();
+        subcategory.setName("Restaurante");
+        subcategory.setCategory(category);
+
+        FinancialTransaction transaction = new FinancialTransaction();
+        transaction.setDescription("Almoço");
+        transaction.setAmount(BigDecimal.valueOf(50));
+        transaction.setDate(LocalDate.now());
+        transaction.setSubcategory(subcategory);
+        transaction.setType(TransactionType.EXPENSE);
+
+        when(transactionRepository.findByUser(user))
+                .thenReturn(List.of(transaction));
+
+        // ACT
+        List<FinancialTransactionResponse> result = transactionService.listByUser(user);
+
+        // ASSERT
+        assertEquals(1, result.size());
+        assertEquals("Almoço", result.get(0).getDescription());
+        assertEquals("Restaurante", result.get(0).getSubcategory());
+    }
+
+    @Test
+    void shouldReturnEmptyListWhenUserHasNoTransactions() {
+
+        when(transactionRepository.findByUser(user))
+                .thenReturn(List.of());
+
+        List<FinancialTransactionResponse> result = transactionService.listByUser(user);
+
+        assertTrue(result.isEmpty());
     }
 }
