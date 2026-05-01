@@ -1,6 +1,7 @@
 package br.edu.ifpe.pdsc.investCalc.investCalc.services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -41,6 +42,8 @@ class FinancialTransactionServiceTest {
     private FinancialTransactionService transactionService;
 
     private FinancialTransactionRequest request;
+    private FinancialTransaction transaction;
+    private Long transactionId;
     private Category category;
     private Subcategory subcategory;
     private User user;
@@ -65,6 +68,17 @@ class FinancialTransactionServiceTest {
 
         user = new User();
         user.setId(1L);
+
+        transactionId = 10L;
+
+        transaction = new FinancialTransaction();
+        transaction.setId(transactionId);
+        transaction.setDescription("Antigo");
+        transaction.setAmount(BigDecimal.valueOf(50));
+        transaction.setDate(LocalDate.now());
+        transaction.setSubcategory(subcategory);
+        transaction.setUser(user);
+        transaction.setType(TransactionType.EXPENSE);
     }
 
     @Test
@@ -99,7 +113,7 @@ class FinancialTransactionServiceTest {
                 RuntimeException.class,
                 () -> transactionService.createFinancialTransaction(request, user));
 
-        assertEquals("Subcategoria não encontrada", exception.getMessage());
+        assertEquals("Subcategoria nao encontrada", exception.getMessage());
     }
 
     @Test
@@ -142,5 +156,61 @@ class FinancialTransactionServiceTest {
         List<FinancialTransactionResponse> result = transactionService.listByUser(user);
 
         assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void shouldUpdateTransactionSuccessfully() {
+
+        // ARRANGE
+        when(transactionRepository.findById(transactionId))
+                .thenReturn(Optional.of(transaction));
+
+        when(subcategoryRepository.findById(request.getSubcategoryId()))
+                .thenReturn(Optional.of(subcategory));
+
+        when(transactionRepository.save(any()))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        // ACT
+        FinancialTransactionResponse result = transactionService.updateFinancialTransaction(transactionId, request,
+                user);
+
+        // ASSERT
+        assertEquals(request.getDescription(), result.getDescription());
+        assertEquals(request.getAmount(), result.getAmount());
+        assertEquals(subcategory.getName(), result.getSubcategory());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenTransactionNotFound() {
+
+        when(transactionRepository.findById(transactionId))
+                .thenReturn(Optional.empty());
+
+        RuntimeException exception = assertThrows(
+                RuntimeException.class,
+                () -> transactionService.updateFinancialTransaction(transactionId, request, user));
+
+        assertEquals("Transacao nao encontrada", exception.getMessage());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUserIsNotOwner() {
+
+        // ARRANGE
+        User anotherUser = new User();
+        anotherUser.setId(999L);
+
+        transaction.setUser(anotherUser);
+
+        when(transactionRepository.findById(transactionId))
+                .thenReturn(Optional.of(transaction));
+
+        // ACT & ASSERT
+        RuntimeException exception = assertThrows(
+                RuntimeException.class,
+                () -> transactionService.updateFinancialTransaction(transactionId, request, user));
+
+        assertEquals("Usuario nao autorizado a atualizar esta transacao", exception.getMessage());
     }
 }
