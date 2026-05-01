@@ -6,7 +6,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -50,5 +52,18 @@ public class FinancialTransactionController {
                 .listByUser(user);
 
         return ResponseEntity.ok(new ApiResponse<>(transactions, "Transações financeiras listadas com sucessos."));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<FinancialTransactionResponse>> updateFinancialTransaction(
+            @PathVariable Long id,
+            @RequestBody FinancialTransactionRequest request,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        User user = userService.getAuthenticatedUser(userDetails);
+
+        FinancialTransactionResponse response = financialTransactionService.updateFinancialTransaction(id, request,
+                user);
+
+        return ResponseEntity.ok(new ApiResponse<>(response, "Transação financeira atualizada com sucesso."));
     }
 }
