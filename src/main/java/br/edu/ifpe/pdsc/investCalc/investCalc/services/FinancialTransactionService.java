@@ -1,5 +1,7 @@
 package br.edu.ifpe.pdsc.investCalc.investCalc.services;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.FinancialTransactionRequest;
@@ -21,14 +23,12 @@ public class FinancialTransactionService {
 
     public FinancialTransactionResponse createFinancialTransaction(FinancialTransactionRequest request, User user) {
 
-        // 1. Buscar subcategoria
         Subcategory subcategory = subcategoryRepository
                 .findById(request.getSubcategoryId())
                 .orElseThrow(() -> new RuntimeException("Subcategoria não encontrada"));
 
         TransactionType type = subcategory.getCategory().getType();
 
-        // 2. Criar entidade
         FinancialTransaction transaction = new FinancialTransaction();
         transaction.setAmount(request.getAmount());
         transaction.setDescription(request.getDescription());
@@ -37,7 +37,6 @@ public class FinancialTransactionService {
         transaction.setUser(user);
         transaction.setType(type);
 
-        // 3. Salvar
         transactionRepository.save(transaction);
 
         return new FinancialTransactionResponse(
@@ -48,5 +47,21 @@ public class FinancialTransactionService {
                 transaction.getSubcategory().getCategory().getName(),
                 transaction.getSubcategory().getName(),
                 transaction.getDate());
+    }
+
+    public List<FinancialTransactionResponse> listByUser(User user) {
+
+        List<FinancialTransaction> transactions = transactionRepository.findByUser(user);
+
+        return transactions.stream()
+                .map(transaction -> new FinancialTransactionResponse(
+                        transaction.getId(),
+                        transaction.getDescription(),
+                        transaction.getAmount(),
+                        transaction.getType(),
+                        transaction.getSubcategory().getCategory().getName(),
+                        transaction.getSubcategory().getName(),
+                        transaction.getDate()))
+                .toList();
     }
 }
