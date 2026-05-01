@@ -2,7 +2,6 @@ package br.edu.ifpe.pdsc.investCalc.investCalc.entities;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.UUID;
 
 import br.edu.ifpe.pdsc.investCalc.investCalc.enums.TransactionType;
 import jakarta.persistence.Column;
@@ -29,8 +28,8 @@ import lombok.Setter;
 public class FinancialTransaction {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     private String description;
 

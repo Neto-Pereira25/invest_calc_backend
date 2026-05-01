@@ -1,7 +1,8 @@
 package br.edu.ifpe.pdsc.investCalc.investCalc.entities;
 
 import java.util.List;
-import java.util.UUID;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import br.edu.ifpe.pdsc.investCalc.investCalc.enums.TransactionType;
 import jakarta.persistence.Column;
@@ -27,8 +28,8 @@ import lombok.Setter;
 public class Category {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(nullable = false)
     private String name;
@@ -38,5 +39,6 @@ public class Category {
     private TransactionType type;
 
     @OneToMany(mappedBy = "category")
+    @JsonIgnore
     private List<Subcategory> subcategories;
 }

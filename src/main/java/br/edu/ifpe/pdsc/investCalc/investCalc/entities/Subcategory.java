@@ -1,7 +1,5 @@
 package br.edu.ifpe.pdsc.investCalc.investCalc.entities;
 
-import java.util.UUID;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -23,8 +21,8 @@ import lombok.Setter;
 public class Subcategory {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     private String name;
 

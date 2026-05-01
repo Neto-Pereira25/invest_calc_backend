@@ -2,7 +2,6 @@ package br.edu.ifpe.pdsc.investCalc.investCalc.dtos;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.UUID;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -12,7 +11,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CreateFinancialTransactionRequest {
+public class FinancialTransactionRequest {
 
     @NotNull(message = "Valor é obrigatório")
     @Positive(message = "Valor deve ser maior que zero")
@@ -25,5 +24,5 @@ public class CreateFinancialTransactionRequest {
     private LocalDate date;
 
     @NotNull(message = "Subcategoria é obrigatória")
-    private UUID subcategoryId;
+    private Long subcategoryId;
 }
