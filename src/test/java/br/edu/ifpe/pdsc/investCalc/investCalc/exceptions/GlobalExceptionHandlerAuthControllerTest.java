@@ -64,7 +64,7 @@ public class GlobalExceptionHandlerAuthControllerTest {
                 """;
 
         // ACT & ASSERT
-        mockMvc.perform(post("/auth/register")
+        mockMvc.perform(post("/api/v1/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
                 .andExpect(status().isBadRequest())
@@ -88,7 +88,7 @@ public class GlobalExceptionHandlerAuthControllerTest {
                 """;
 
         // ACT & ASSERT
-        mockMvc.perform(post("/auth/login")
+        mockMvc.perform(post("/api/v1/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
                 .andExpect(status().isNotFound())
@@ -112,7 +112,7 @@ public class GlobalExceptionHandlerAuthControllerTest {
                 """;
 
         // ACT & ASSERT
-        mockMvc.perform(post("/auth/login")
+        mockMvc.perform(post("/api/v1/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
                 .andExpect(status().isBadRequest())
@@ -135,7 +135,7 @@ public class GlobalExceptionHandlerAuthControllerTest {
                 """;
 
         // ACT & ASSERT
-        mockMvc.perform(post("/auth/register")
+        mockMvc.perform(post("/api/v1/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
                 .andExpect(status().isUnprocessableEntity())
