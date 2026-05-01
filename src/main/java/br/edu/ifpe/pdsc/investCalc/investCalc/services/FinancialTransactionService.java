@@ -95,4 +95,16 @@ public class FinancialTransactionService {
                                 transaction.getSubcategory().getName(),
                                 transaction.getDate());
         }
+
+        public void deleteFinancialTransaction(Long transactionId, User user) {
+
+                FinancialTransaction transaction = transactionRepository.findById(transactionId)
+                                .orElseThrow(() -> new RuntimeException("Transacao nao encontrada"));
+
+                if (!transaction.getUser().getId().equals(user.getId())) {
+                        throw new RuntimeException("Usuario nao autorizado a deletar esta transacao");
+                }
+
+                transactionRepository.delete(transaction);
+        }
 }

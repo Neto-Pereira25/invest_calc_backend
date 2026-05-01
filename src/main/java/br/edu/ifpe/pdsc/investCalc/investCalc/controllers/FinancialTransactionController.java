@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,44 +27,58 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class FinancialTransactionController {
 
-    private final FinancialTransactionService financialTransactionService;
-    private final UserService userService;
+        private final FinancialTransactionService financialTransactionService;
+        private final UserService userService;
 
-    @PostMapping
-    public ApiResponse<FinancialTransactionResponse> createFinancialTransaction(
-            @RequestBody FinancialTransactionRequest request,
-            @AuthenticationPrincipal UserDetails userDetails) {
+        @PostMapping
+        public ApiResponse<FinancialTransactionResponse> createFinancialTransaction(
+                        @RequestBody FinancialTransactionRequest request,
+                        @AuthenticationPrincipal UserDetails userDetails) {
 
-        User user = userService.getAuthenticatedUser(userDetails);
+                User user = userService.getAuthenticatedUser(userDetails);
 
-        FinancialTransactionResponse createdTransaction = financialTransactionService
-                .createFinancialTransaction(request, user);
+                FinancialTransactionResponse createdTransaction = financialTransactionService
+                                .createFinancialTransaction(request, user);
 
-        return new ApiResponse<>(createdTransaction, "Transação financeira criada com sucesso.");
-    }
+                return new ApiResponse<>(createdTransaction, "Transação financeira criada com sucesso.");
+        }
 
-    @GetMapping
-    public ResponseEntity<ApiResponse<List<FinancialTransactionResponse>>> listFinancialTransactions(
-            @AuthenticationPrincipal UserDetails userDetails) {
+        @GetMapping
+        public ResponseEntity<ApiResponse<List<FinancialTransactionResponse>>> listFinancialTransactions(
+                        @AuthenticationPrincipal UserDetails userDetails) {
 
-        User user = userService.getAuthenticatedUser(userDetails);
+                User user = userService.getAuthenticatedUser(userDetails);
 
-        List<FinancialTransactionResponse> transactions = financialTransactionService
-                .listByUser(user);
+                List<FinancialTransactionResponse> transactions = financialTransactionService
+                                .listByUser(user);
 
-        return ResponseEntity.ok(new ApiResponse<>(transactions, "Transações financeiras listadas com sucessos."));
-    }
+                return ResponseEntity
+                                .ok(new ApiResponse<>(transactions, "Transações financeiras listadas com sucessos."));
+        }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<FinancialTransactionResponse>> updateFinancialTransaction(
-            @PathVariable Long id,
-            @RequestBody FinancialTransactionRequest request,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        User user = userService.getAuthenticatedUser(userDetails);
+        @PutMapping("/{id}")
+        public ResponseEntity<ApiResponse<FinancialTransactionResponse>> updateFinancialTransaction(
+                        @PathVariable Long id,
+                        @RequestBody FinancialTransactionRequest request,
+                        @AuthenticationPrincipal UserDetails userDetails) {
+                User user = userService.getAuthenticatedUser(userDetails);
 
-        FinancialTransactionResponse response = financialTransactionService.updateFinancialTransaction(id, request,
-                user);
+                FinancialTransactionResponse response = financialTransactionService.updateFinancialTransaction(id,
+                                request,
+                                user);
 
-        return ResponseEntity.ok(new ApiResponse<>(response, "Transação financeira atualizada com sucesso."));
-    }
+                return ResponseEntity.ok(new ApiResponse<>(response, "Transação financeira atualizada com sucesso."));
+        }
+
+        @DeleteMapping("/{id}")
+        public ResponseEntity<ApiResponse<Void>> deleteFinancialTransaction(
+                        @PathVariable Long id,
+                        @AuthenticationPrincipal UserDetails userDetails) {
+
+                User user = userService.getAuthenticatedUser(userDetails);
+
+                financialTransactionService.deleteFinancialTransaction(id, user);
+
+                return ResponseEntity.ok(new ApiResponse<>(null, "Transação financeira deletada com sucesso."));
+        }
 }
