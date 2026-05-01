@@ -10,6 +10,9 @@ import br.edu.ifpe.pdsc.investCalc.investCalc.entities.FinancialTransaction;
 import br.edu.ifpe.pdsc.investCalc.investCalc.entities.Subcategory;
 import br.edu.ifpe.pdsc.investCalc.investCalc.entities.User;
 import br.edu.ifpe.pdsc.investCalc.investCalc.enums.TransactionType;
+import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.transaction.SubcategoryNotFoundException;
+import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.transaction.TransactionNotFoundException;
+import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.transaction.UnauthorizedTransactionAccessException;
 import br.edu.ifpe.pdsc.investCalc.investCalc.repositories.FinancialTransactionRepository;
 import br.edu.ifpe.pdsc.investCalc.investCalc.repositories.SubcategoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +28,7 @@ public class FinancialTransactionService {
 
                 Subcategory subcategory = subcategoryRepository
                                 .findById(request.getSubcategoryId())
-                                .orElseThrow(() -> new RuntimeException("Subcategoria nao encontrada"));
+                                .orElseThrow(SubcategoryNotFoundException::new);
 
                 TransactionType type = subcategory.getCategory().getType();
 
@@ -69,14 +72,14 @@ public class FinancialTransactionService {
                         FinancialTransactionRequest request,
                         User user) {
                 FinancialTransaction transaction = transactionRepository.findById(transactionId)
-                                .orElseThrow(() -> new RuntimeException("Transacao nao encontrada"));
+                                .orElseThrow(TransactionNotFoundException::new);
 
                 if (!transaction.getUser().getId().equals(user.getId())) {
-                        throw new RuntimeException("Usuario nao autorizado a atualizar esta transacao");
+                        throw new UnauthorizedTransactionAccessException();
                 }
 
                 Subcategory subcategory = subcategoryRepository.findById(request.getSubcategoryId())
-                                .orElseThrow(() -> new RuntimeException("Subcategoria nao encontrada."));
+                                .orElseThrow(SubcategoryNotFoundException::new);
 
                 transaction.setDescription(request.getDescription());
                 transaction.setAmount(request.getAmount());
@@ -99,10 +102,10 @@ public class FinancialTransactionService {
         public void deleteFinancialTransaction(Long transactionId, User user) {
 
                 FinancialTransaction transaction = transactionRepository.findById(transactionId)
-                                .orElseThrow(() -> new RuntimeException("Transacao nao encontrada"));
+                                .orElseThrow(TransactionNotFoundException::new);
 
                 if (!transaction.getUser().getId().equals(user.getId())) {
-                        throw new RuntimeException("Usuario nao autorizado a deletar esta transacao");
+                        throw new UnauthorizedTransactionAccessException();
                 }
 
                 transactionRepository.delete(transaction);
