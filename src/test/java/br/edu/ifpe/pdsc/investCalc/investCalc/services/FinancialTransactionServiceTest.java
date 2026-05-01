@@ -4,6 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
@@ -32,185 +35,233 @@ import br.edu.ifpe.pdsc.investCalc.investCalc.repositories.SubcategoryRepository
 @ExtendWith(MockitoExtension.class)
 class FinancialTransactionServiceTest {
 
-    @Mock
-    private FinancialTransactionRepository transactionRepository;
+        @Mock
+        private FinancialTransactionRepository transactionRepository;
 
-    @Mock
-    private SubcategoryRepository subcategoryRepository;
+        @Mock
+        private SubcategoryRepository subcategoryRepository;
 
-    @InjectMocks
-    private FinancialTransactionService transactionService;
+        @InjectMocks
+        private FinancialTransactionService transactionService;
 
-    private FinancialTransactionRequest request;
-    private FinancialTransaction transaction;
-    private Long transactionId;
-    private Category category;
-    private Subcategory subcategory;
-    private User user;
+        private FinancialTransactionRequest request;
+        private FinancialTransaction transaction;
+        private Long transactionId;
+        private Category category;
+        private Subcategory subcategory;
+        private User user;
 
-    @BeforeEach
-    void setup() {
-        request = new FinancialTransactionRequest();
-        request.setAmount(BigDecimal.valueOf(100));
-        request.setDescription("Almoço");
-        request.setDate(LocalDate.now());
-        request.setSubcategoryId(1L);
+        @BeforeEach
+        void setup() {
+                request = new FinancialTransactionRequest();
+                request.setAmount(BigDecimal.valueOf(100));
+                request.setDescription("Almoço");
+                request.setDate(LocalDate.now());
+                request.setSubcategoryId(1L);
 
-        category = new Category();
-        category.setId(1L);
-        category.setName("Moradia");
-        category.setType(TransactionType.EXPENSE);
+                category = new Category();
+                category.setId(1L);
+                category.setName("Moradia");
+                category.setType(TransactionType.EXPENSE);
 
-        subcategory = new Subcategory();
-        subcategory.setId(1L);
-        subcategory.setName("Aluguel");
-        subcategory.setCategory(category);
+                subcategory = new Subcategory();
+                subcategory.setId(1L);
+                subcategory.setName("Aluguel");
+                subcategory.setCategory(category);
 
-        user = new User();
-        user.setId(1L);
+                user = new User();
+                user.setId(1L);
 
-        transactionId = 10L;
+                transactionId = 10L;
 
-        transaction = new FinancialTransaction();
-        transaction.setId(transactionId);
-        transaction.setDescription("Antigo");
-        transaction.setAmount(BigDecimal.valueOf(50));
-        transaction.setDate(LocalDate.now());
-        transaction.setSubcategory(subcategory);
-        transaction.setUser(user);
-        transaction.setType(TransactionType.EXPENSE);
-    }
+                transaction = new FinancialTransaction();
+                transaction.setId(transactionId);
+                transaction.setDescription("Antigo");
+                transaction.setAmount(BigDecimal.valueOf(50));
+                transaction.setDate(LocalDate.now());
+                transaction.setSubcategory(subcategory);
+                transaction.setUser(user);
+                transaction.setType(TransactionType.EXPENSE);
+        }
 
-    @Test
-    void shouldCreateTransactionSuccessfully() {
+        @Test
+        void shouldCreateTransactionSuccessfully() {
 
-        // ARRANGE
-        when(subcategoryRepository.findById(request.getSubcategoryId()))
-                .thenReturn(Optional.of(subcategory));
+                // ARRANGE
+                when(subcategoryRepository.findById(request.getSubcategoryId()))
+                                .thenReturn(Optional.of(subcategory));
 
-        when(transactionRepository.save(any()))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+                when(transactionRepository.save(any()))
+                                .thenAnswer(invocation -> invocation.getArgument(0));
 
-        // ACT
-        FinancialTransactionResponse result = transactionService.createFinancialTransaction(request, user);
+                // ACT
+                FinancialTransactionResponse result = transactionService.createFinancialTransaction(request, user);
 
-        // ASSERT
-        assertEquals(request.getAmount(), result.getAmount());
-        assertEquals(request.getDescription(), result.getDescription());
-        assertEquals(request.getDate(), result.getDate());
-        assertEquals(subcategory.getName(), result.getSubcategory());
-    }
+                // ASSERT
+                assertEquals(request.getAmount(), result.getAmount());
+                assertEquals(request.getDescription(), result.getDescription());
+                assertEquals(request.getDate(), result.getDate());
+                assertEquals(subcategory.getName(), result.getSubcategory());
+        }
 
-    @Test
-    void shouldThrowExceptionWhenSubcategoryNotFound() {
+        @Test
+        void shouldThrowExceptionWhenSubcategoryNotFound() {
 
-        // ARRANGE
-        when(subcategoryRepository.findById(request.getSubcategoryId()))
-                .thenReturn(Optional.empty());
+                // ARRANGE
+                when(subcategoryRepository.findById(request.getSubcategoryId()))
+                                .thenReturn(Optional.empty());
 
-        // ACT & ASSERT
-        RuntimeException exception = Assertions.assertThrows(
-                RuntimeException.class,
-                () -> transactionService.createFinancialTransaction(request, user));
+                // ACT & ASSERT
+                RuntimeException exception = Assertions.assertThrows(
+                                RuntimeException.class,
+                                () -> transactionService.createFinancialTransaction(request, user));
 
-        assertEquals("Subcategoria nao encontrada", exception.getMessage());
-    }
+                assertEquals("Subcategoria nao encontrada", exception.getMessage());
+        }
 
-    @Test
-    void shouldListTransactionsByUser() {
+        @Test
+        void shouldListTransactionsByUser() {
 
-        // ARRANGE
-        Category category = new Category();
-        category.setName("Alimentação");
-        category.setType(TransactionType.EXPENSE);
+                // ARRANGE
+                Category category = new Category();
+                category.setName("Alimentação");
+                category.setType(TransactionType.EXPENSE);
 
-        Subcategory subcategory = new Subcategory();
-        subcategory.setName("Restaurante");
-        subcategory.setCategory(category);
+                Subcategory subcategory = new Subcategory();
+                subcategory.setName("Restaurante");
+                subcategory.setCategory(category);
 
-        FinancialTransaction transaction = new FinancialTransaction();
-        transaction.setDescription("Almoço");
-        transaction.setAmount(BigDecimal.valueOf(50));
-        transaction.setDate(LocalDate.now());
-        transaction.setSubcategory(subcategory);
-        transaction.setType(TransactionType.EXPENSE);
+                FinancialTransaction transaction = new FinancialTransaction();
+                transaction.setDescription("Almoço");
+                transaction.setAmount(BigDecimal.valueOf(50));
+                transaction.setDate(LocalDate.now());
+                transaction.setSubcategory(subcategory);
+                transaction.setType(TransactionType.EXPENSE);
 
-        when(transactionRepository.findByUser(user))
-                .thenReturn(List.of(transaction));
+                when(transactionRepository.findByUser(user))
+                                .thenReturn(List.of(transaction));
 
-        // ACT
-        List<FinancialTransactionResponse> result = transactionService.listByUser(user);
+                // ACT
+                List<FinancialTransactionResponse> result = transactionService.listByUser(user);
 
-        // ASSERT
-        assertEquals(1, result.size());
-        assertEquals("Almoço", result.get(0).getDescription());
-        assertEquals("Restaurante", result.get(0).getSubcategory());
-    }
+                // ASSERT
+                assertEquals(1, result.size());
+                assertEquals("Almoço", result.get(0).getDescription());
+                assertEquals("Restaurante", result.get(0).getSubcategory());
+        }
 
-    @Test
-    void shouldReturnEmptyListWhenUserHasNoTransactions() {
+        @Test
+        void shouldReturnEmptyListWhenUserHasNoTransactions() {
 
-        when(transactionRepository.findByUser(user))
-                .thenReturn(List.of());
+                when(transactionRepository.findByUser(user))
+                                .thenReturn(List.of());
 
-        List<FinancialTransactionResponse> result = transactionService.listByUser(user);
+                List<FinancialTransactionResponse> result = transactionService.listByUser(user);
 
-        assertTrue(result.isEmpty());
-    }
+                assertTrue(result.isEmpty());
+        }
 
-    @Test
-    void shouldUpdateTransactionSuccessfully() {
+        @Test
+        void shouldUpdateTransactionSuccessfully() {
 
-        // ARRANGE
-        when(transactionRepository.findById(transactionId))
-                .thenReturn(Optional.of(transaction));
+                // ARRANGE
+                when(transactionRepository.findById(transactionId))
+                                .thenReturn(Optional.of(transaction));
 
-        when(subcategoryRepository.findById(request.getSubcategoryId()))
-                .thenReturn(Optional.of(subcategory));
+                when(subcategoryRepository.findById(request.getSubcategoryId()))
+                                .thenReturn(Optional.of(subcategory));
 
-        when(transactionRepository.save(any()))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+                when(transactionRepository.save(any()))
+                                .thenAnswer(invocation -> invocation.getArgument(0));
 
-        // ACT
-        FinancialTransactionResponse result = transactionService.updateFinancialTransaction(transactionId, request,
-                user);
+                // ACT
+                FinancialTransactionResponse result = transactionService.updateFinancialTransaction(transactionId,
+                                request,
+                                user);
 
-        // ASSERT
-        assertEquals(request.getDescription(), result.getDescription());
-        assertEquals(request.getAmount(), result.getAmount());
-        assertEquals(subcategory.getName(), result.getSubcategory());
-    }
+                // ASSERT
+                assertEquals(request.getDescription(), result.getDescription());
+                assertEquals(request.getAmount(), result.getAmount());
+                assertEquals(subcategory.getName(), result.getSubcategory());
+        }
 
-    @Test
-    void shouldThrowExceptionWhenTransactionNotFound() {
+        @Test
+        void shouldThrowExceptionWhenTransactionNotFound() {
 
-        when(transactionRepository.findById(transactionId))
-                .thenReturn(Optional.empty());
+                when(transactionRepository.findById(transactionId))
+                                .thenReturn(Optional.empty());
 
-        RuntimeException exception = assertThrows(
-                RuntimeException.class,
-                () -> transactionService.updateFinancialTransaction(transactionId, request, user));
+                RuntimeException exception = assertThrows(
+                                RuntimeException.class,
+                                () -> transactionService.updateFinancialTransaction(transactionId, request, user));
 
-        assertEquals("Transacao nao encontrada", exception.getMessage());
-    }
+                assertEquals("Transacao nao encontrada", exception.getMessage());
+        }
 
-    @Test
-    void shouldThrowExceptionWhenUserIsNotOwner() {
+        @Test
+        void shouldThrowExceptionWhenUserIsNotOwner() {
 
-        // ARRANGE
-        User anotherUser = new User();
-        anotherUser.setId(999L);
+                // ARRANGE
+                User anotherUser = new User();
+                anotherUser.setId(999L);
 
-        transaction.setUser(anotherUser);
+                transaction.setUser(anotherUser);
 
-        when(transactionRepository.findById(transactionId))
-                .thenReturn(Optional.of(transaction));
+                when(transactionRepository.findById(transactionId))
+                                .thenReturn(Optional.of(transaction));
 
-        // ACT & ASSERT
-        RuntimeException exception = assertThrows(
-                RuntimeException.class,
-                () -> transactionService.updateFinancialTransaction(transactionId, request, user));
+                // ACT & ASSERT
+                RuntimeException exception = assertThrows(
+                                RuntimeException.class,
+                                () -> transactionService.updateFinancialTransaction(transactionId, request, user));
 
-        assertEquals("Usuario nao autorizado a atualizar esta transacao", exception.getMessage());
-    }
+                assertEquals("Usuario nao autorizado a atualizar esta transacao", exception.getMessage());
+        }
+
+        @Test
+        void shouldDeleteTransactionSuccessfully() {
+
+                // ARRANGE
+                when(transactionRepository.findById(transactionId))
+                                .thenReturn(Optional.of(transaction));
+
+                doNothing().when(transactionRepository).delete(transaction);
+
+                // ACT
+                transactionService.deleteFinancialTransaction(transactionId, user);
+
+                // ASSERT
+                verify(transactionRepository, times(1)).delete(transaction);
+        }
+
+        @Test
+        void shouldThrowExceptionWhenDeletingNonExistingTransaction() {
+
+                when(transactionRepository.findById(transactionId))
+                                .thenReturn(Optional.empty());
+
+                RuntimeException exception = assertThrows(
+                                RuntimeException.class,
+                                () -> transactionService.deleteFinancialTransaction(transactionId, user));
+
+                assertEquals("Transacao nao encontrada", exception.getMessage());
+        }
+
+        @Test
+        void shouldThrowExceptionWhenDeletingTransactionFromAnotherUser() {
+
+                User anotherUser = new User();
+                anotherUser.setId(999L);
+
+                transaction.setUser(anotherUser);
+
+                when(transactionRepository.findById(transactionId))
+                                .thenReturn(Optional.of(transaction));
+
+                RuntimeException exception = assertThrows(
+                                RuntimeException.class,
+                                () -> transactionService.deleteFinancialTransaction(transactionId, user));
+
+                assertEquals("Usuario nao autorizado a deletar esta transacao", exception.getMessage());
+        }
 }
