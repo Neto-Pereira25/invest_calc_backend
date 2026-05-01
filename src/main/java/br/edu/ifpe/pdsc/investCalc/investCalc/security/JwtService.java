@@ -13,7 +13,7 @@ import io.jsonwebtoken.security.Keys;
 @Service
 public class JwtService {
 
-    private static final long EXPIRATION_TIME = 1000 * 40;
+    private static final long EXPIRATION_TIME = 1000 * 120;
     private final String SECRET = "minha-chave-super-secreta-minimo-32-bytes";
 
     private Key getSignKey() {
@@ -25,7 +25,7 @@ public class JwtService {
         return Jwts.builder()
                 .setSubject(email)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME)) // 1h
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
