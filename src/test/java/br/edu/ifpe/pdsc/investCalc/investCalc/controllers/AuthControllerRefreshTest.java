@@ -60,8 +60,10 @@ public class AuthControllerRefreshTest {
         refreshToken.setUser(user);
         refreshToken.setExpiration(new java.util.Date(System.currentTimeMillis() + 60 * 60 * 1000)); // Expira em 1 hora
 
-        when(refreshTokenService.validate(refreshTokenValue)).thenReturn(refreshToken);
-        when(jwtService.generateToken(email)).thenReturn("NEW_ACCESS_TOKEN");
+        when(refreshTokenService.validate(refreshTokenValue))
+                .thenReturn(refreshToken);
+        when(jwtService.generateToken(email))
+                .thenReturn("NEW_ACCESS_TOKEN");
 
         String requestBody = """
                 {
@@ -70,11 +72,12 @@ public class AuthControllerRefreshTest {
                 """;
 
         // ACT & ASSERT
-        mockMvc.perform(post("/auth/refresh")
+        mockMvc.perform(post("/api/v1/auth/refresh")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.token").value("NEW_ACCESS_TOKEN"))
-                .andExpect(jsonPath("$.data.refreshToken").value(refreshTokenValue));
+                .andExpect(jsonPath("$.data.refreshToken").value(refreshTokenValue))
+                .andExpect(jsonPath("$.message").exists());
     }
 }

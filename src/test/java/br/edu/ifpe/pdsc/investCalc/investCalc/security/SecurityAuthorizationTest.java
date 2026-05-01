@@ -21,7 +21,7 @@ class SecurityAuthorizationTest {
     @WithMockUser(roles = "USER")
     void shouldReturn403WhenUserAccessesAdminEndpoint() throws Exception {
 
-        mockMvc.perform(get("/auth/admin"))
+        mockMvc.perform(get("/api/v1/auth/admin"))
                 .andExpect(status().isForbidden());
     }
 
@@ -29,14 +29,14 @@ class SecurityAuthorizationTest {
     @WithMockUser(roles = "ADMIN")
     void shouldAllowAdminAccess() throws Exception {
 
-        mockMvc.perform(get("/auth/admin"))
+        mockMvc.perform(get("/api/v1/auth/admin"))
                 .andExpect(status().isOk());
     }
 
     @Test
     void shouldReturn401WhenNotAuthenticated() throws Exception {
 
-        mockMvc.perform(get("/auth/admin"))
+        mockMvc.perform(get("/api/v1/auth/admin"))
                 .andExpect(status().isForbidden());
     }
 }
