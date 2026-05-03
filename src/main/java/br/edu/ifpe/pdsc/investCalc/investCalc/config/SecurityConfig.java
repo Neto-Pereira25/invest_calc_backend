@@ -46,6 +46,7 @@ public class SecurityConfig {
                                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                                 .authorizeHttpRequests(auth -> auth
                                                 .requestMatchers("api/v1/auth/**").permitAll()
+                                                .requestMatchers("api/v1/compound-interest-simulator/**").permitAll()
                                                 .anyRequest().authenticated())
                                 .exceptionHandling(ex -> ex
                                                 .authenticationEntryPoint(customAuthenticationEntryPoint)
