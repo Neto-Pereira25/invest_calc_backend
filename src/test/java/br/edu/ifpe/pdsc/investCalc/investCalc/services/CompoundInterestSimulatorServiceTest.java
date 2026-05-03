@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.CompoundInterestSimulatorRequest;
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.CompoundInterestSimulatorResponse;
+import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.CompoundInterestSimulatorTableResponse;
 import br.edu.ifpe.pdsc.investCalc.investCalc.enums.PeriodType;
 import br.edu.ifpe.pdsc.investCalc.investCalc.enums.RateType;
 import jakarta.validation.ConstraintViolation;
@@ -102,6 +103,36 @@ class CompoundInterestSimulatorServiceTest {
         assertEquals(BigDecimal.valueOf(200.00).setScale(2), response.getTotalInvested());
         assertEquals(BigDecimal.valueOf(1.00).setScale(2), response.getTotalInterest());
         assertEquals(BigDecimal.valueOf(201.00).setScale(2), response.getFinalAmount());
+    }
+
+    @Test
+    void shouldReturnMonthlyBreakdownIncludingMonthZero() {
+
+        CompoundInterestSimulatorRequest request = new CompoundInterestSimulatorRequest(
+                BigDecimal.valueOf(1000),
+                BigDecimal.valueOf(100),
+                BigDecimal.valueOf(10),
+                2,
+                PeriodType.MONTHLY,
+                RateType.MONTHLY);
+
+        CompoundInterestSimulatorResponse response = service.simulate(request);
+
+        assertEquals(3, response.getMonthlyBreakdown().size());
+
+        CompoundInterestSimulatorTableResponse monthZero = response.getMonthlyBreakdown().get(0);
+        assertEquals(0, monthZero.getMonth());
+        assertEquals(BigDecimal.valueOf(1000.00).setScale(2), monthZero.getInvested());
+        assertEquals(BigDecimal.ZERO.setScale(2), monthZero.getInterest());
+        assertEquals(BigDecimal.ZERO.setScale(2), monthZero.getTotalInterest());
+        assertEquals(BigDecimal.valueOf(1000.00).setScale(2), monthZero.getAccumulated());
+
+        CompoundInterestSimulatorTableResponse monthTwo = response.getMonthlyBreakdown().get(2);
+        assertEquals(2, monthTwo.getMonth());
+        assertEquals(BigDecimal.valueOf(1200.00).setScale(2), monthTwo.getInvested());
+        assertEquals(BigDecimal.valueOf(120.00).setScale(2), monthTwo.getInterest());
+        assertEquals(BigDecimal.valueOf(220.00).setScale(2), monthTwo.getTotalInterest());
+        assertEquals(BigDecimal.valueOf(1420.00).setScale(2), monthTwo.getAccumulated());
     }
 
     @Test
