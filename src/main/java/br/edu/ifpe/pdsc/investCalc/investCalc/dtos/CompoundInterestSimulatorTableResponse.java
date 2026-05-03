@@ -16,5 +16,6 @@ public class CompoundInterestSimulatorTableResponse {
     private Integer month;
     private BigDecimal invested;
     private BigDecimal interest;
+    private BigDecimal totalInterest;
     private BigDecimal accumulated;
 }

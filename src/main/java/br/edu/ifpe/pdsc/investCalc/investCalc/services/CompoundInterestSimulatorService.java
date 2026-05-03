@@ -2,11 +2,14 @@ package br.edu.ifpe.pdsc.investCalc.investCalc.services;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.CompoundInterestSimulatorRequest;
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.CompoundInterestSimulatorResponse;
+import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.CompoundInterestSimulatorTableResponse;
 import br.edu.ifpe.pdsc.investCalc.investCalc.enums.PeriodType;
 import br.edu.ifpe.pdsc.investCalc.investCalc.enums.RateType;
 
@@ -24,6 +27,9 @@ public class CompoundInterestSimulatorService {
         BigDecimal accumulated = initialValue;
         BigDecimal totalInvested = initialValue;
         BigDecimal totalInterest = BigDecimal.ZERO;
+        List<CompoundInterestSimulatorTableResponse> monthlyBreakdown = new ArrayList<>();
+
+        monthlyBreakdown.add(toTableRow(0, totalInvested, BigDecimal.ZERO, totalInterest, accumulated));
 
         for (int i = 1; i <= months; i++) {
 
@@ -32,10 +38,24 @@ public class CompoundInterestSimulatorService {
 
             totalInterest = totalInterest.add(interest);
             totalInvested = totalInvested.add(monthlyContribution);
+
+            monthlyBreakdown.add(toTableRow(i, totalInvested, interest, totalInterest, accumulated));
         }
 
         return new CompoundInterestSimulatorResponse(
                 totalInvested.setScale(2, RoundingMode.HALF_UP),
+                totalInterest.setScale(2, RoundingMode.HALF_UP),
+                accumulated.setScale(2, RoundingMode.HALF_UP),
+                monthlyBreakdown);
+    }
+
+    private CompoundInterestSimulatorTableResponse toTableRow(int month, BigDecimal invested, BigDecimal interest,
+            BigDecimal totalInterest, BigDecimal accumulated) {
+
+        return new CompoundInterestSimulatorTableResponse(
+                month,
+                invested.setScale(2, RoundingMode.HALF_UP),
+                interest.setScale(2, RoundingMode.HALF_UP),
                 totalInterest.setScale(2, RoundingMode.HALF_UP),
                 accumulated.setScale(2, RoundingMode.HALF_UP));
     }
