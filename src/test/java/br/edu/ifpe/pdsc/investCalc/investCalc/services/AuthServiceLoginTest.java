@@ -51,6 +51,7 @@ public class AuthServiceLoginTest {
                 String password = "12345678";
 
                 User user = new User();
+                user.setName("Teste User");
                 user.setEmail(email);
                 user.setPassword("senhaCriptografada");
 
@@ -60,7 +61,7 @@ public class AuthServiceLoginTest {
                 when(passwordEncoder.matches(password, user.getPassword()))
                                 .thenReturn(true);
 
-                when(jwtService.generateToken(email))
+                when(jwtService.generateToken(user.getName(), email))
                                 .thenReturn("token-fake");
 
                 RefreshToken refreshToken = new RefreshToken();

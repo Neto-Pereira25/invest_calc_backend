@@ -26,58 +26,62 @@ import br.edu.ifpe.pdsc.investCalc.investCalc.services.AuthService;
 @AutoConfigureMockMvc(addFilters = false)
 public class AuthControllerRefreshTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+        @Autowired
+        private MockMvc mockMvc;
 
-    @MockBean
-    private AuthService authService;
+        @MockBean
+        private AuthService authService;
 
-    @MockBean
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
+        @MockBean
+        private JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    @MockBean
-    private CustomUserDetailsService customUserDetailsService;
+        @MockBean
+        private CustomUserDetailsService customUserDetailsService;
 
-    @MockBean
-    private RefreshTokenService refreshTokenService;
+        @MockBean
+        private RefreshTokenService refreshTokenService;
 
-    @MockBean
-    private JwtService jwtService;
+        @MockBean
+        private JwtService jwtService;
 
-    @Test
-    @DisplayName("POST /auth/refresh - should return new access token and same refresh token when refresh token is valid")
-    void shouldReturnNewAccessTokenWhenRefreshTokenIsValid() throws Exception {
+        @Test
+        @DisplayName("POST /auth/refresh - should return new access token and same refresh token when refresh token is valid")
+        void shouldReturnNewAccessTokenWhenRefreshTokenIsValid() throws Exception {
 
-        // ARRANGE
-        String refreshTokenValue = "REFRESH_TOKEN";
-        String email = "user@email.com";
+                // ARRANGE
+                String refreshTokenValue = "REFRESH_TOKEN";
+                String name = "User Name";
+                String email = "user@email.com";
 
-        User user = new User();
-        user.setEmail(email);
+                User user = new User();
+                user.setName(name);
+                user.setEmail(email);
 
-        RefreshToken refreshToken = new RefreshToken();
-        refreshToken.setToken(refreshTokenValue);
-        refreshToken.setUser(user);
-        refreshToken.setExpiration(new java.util.Date(System.currentTimeMillis() + 60 * 60 * 1000)); // Expira em 1 hora
+                RefreshToken refreshToken = new RefreshToken();
+                refreshToken.setToken(refreshTokenValue);
+                refreshToken.setUser(user);
+                refreshToken.setExpiration(new java.util.Date(System.currentTimeMillis() + 60 * 60 * 1000)); // Expira
+                                                                                                             // em 1
+                                                                                                             // hora
 
-        when(refreshTokenService.validate(refreshTokenValue))
-                .thenReturn(refreshToken);
-        when(jwtService.generateToken(email))
-                .thenReturn("NEW_ACCESS_TOKEN");
+                when(refreshTokenService.validate(refreshTokenValue))
+                                .thenReturn(refreshToken);
+                when(jwtService.generateToken(name, email))
+                                .thenReturn("NEW_ACCESS_TOKEN");
 
-        String requestBody = """
-                {
-                    "refreshToken": "REFRESH_TOKEN"
-                }
-                """;
+                String requestBody = """
+                                {
+                                    "refreshToken": "REFRESH_TOKEN"
+                                }
+                                """;
 
-        // ACT & ASSERT
-        mockMvc.perform(post("/api/v1/auth/refresh")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.token").value("NEW_ACCESS_TOKEN"))
-                .andExpect(jsonPath("$.data.refreshToken").value(refreshTokenValue))
-                .andExpect(jsonPath("$.message").exists());
-    }
+                // ACT & ASSERT
+                mockMvc.perform(post("/api/v1/auth/refresh")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(requestBody))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.data.token").value("NEW_ACCESS_TOKEN"))
+                                .andExpect(jsonPath("$.data.refreshToken").value(refreshTokenValue))
+                                .andExpect(jsonPath("$.message").exists());
+        }
 }
