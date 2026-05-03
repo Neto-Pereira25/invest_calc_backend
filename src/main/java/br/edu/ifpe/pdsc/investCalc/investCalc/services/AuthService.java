@@ -52,7 +52,7 @@ public class AuthService {
             throw new InvalidPasswordException();
         }
 
-        String token = jwtService.generateToken(user.getEmail());
+        String token = jwtService.generateToken(user.getName(), user.getEmail());
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getEmail());
 
         return new AuthResponse(token, refreshToken.getToken());

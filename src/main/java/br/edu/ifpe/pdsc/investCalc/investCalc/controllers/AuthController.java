@@ -48,6 +48,7 @@ public class AuthController {
         RefreshToken refreshToken = refreshTokenService.validate(request.refreshToken());
 
         String newAccessToken = jwtService.generateToken(
+                refreshToken.getUser().getName(),
                 refreshToken.getUser().getEmail());
 
         return new ApiResponse<>(new AuthResponse(newAccessToken, request.refreshToken()),
