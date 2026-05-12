@@ -18,6 +18,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,6 +28,7 @@ import br.edu.ifpe.pdsc.investCalc.investCalc.security.JwtService;
 
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = true)
+@ActiveProfiles("test")
 @Import(SecurityAuthorizationIntegrationTest.TestProtectedController.class)
 public class SecurityAuthorizationIntegrationTest {
 

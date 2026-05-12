@@ -17,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.AuthResponse;
@@ -30,6 +31,7 @@ import br.edu.ifpe.pdsc.investCalc.investCalc.services.AuthService;
 
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
+@ActiveProfiles("test")
 @Import(GlobalExceptionHandler.class)
 public class AuthControllerTest {
 
