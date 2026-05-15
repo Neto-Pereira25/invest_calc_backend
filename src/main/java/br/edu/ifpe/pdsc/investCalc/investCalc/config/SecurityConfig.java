@@ -69,7 +69,7 @@ public class SecurityConfig {
 
                 // 👉 Métodos permitidos
                 config.setAllowedMethods(List.of(
-                                "GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                                "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 
                 // 👉 Headers permitidos
                 config.setAllowedHeaders(List.of("*"));

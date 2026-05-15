@@ -3,6 +3,7 @@ package br.edu.ifpe.pdsc.investCalc.investCalc.controllers;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -14,6 +15,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.UserResponse;
@@ -80,5 +82,21 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.message").exists())
                 .andExpect(jsonPath("$.data.id").value(1))
                 .andExpect(jsonPath("$.data.email").value("user@email.com"));
+    }
+
+    @Test
+    @DisplayName("PATCH /api/v1/users/profile - should update authenticated user name successfully")
+    void shouldUpdateAuthenticatedUserNameSuccessfully() throws Exception {
+
+        user.setName("Updated Name");
+        when(userService.updateAuthenticatedUserName(any(), any()))
+                .thenReturn(user);
+
+        mockMvc.perform(patch("/api/v1/users/profile")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\": \"Updated Name\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.name").value("Updated Name"))
+                .andExpect(jsonPath("$.message").value("Nome do usuário atualizado com sucesso"));
     }
 }
