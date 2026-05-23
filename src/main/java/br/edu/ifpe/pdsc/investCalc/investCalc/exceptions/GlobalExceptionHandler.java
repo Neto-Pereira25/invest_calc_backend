@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.ApiResponse;
+import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.goals.GoalNotFoundException;
+import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.goals.UnauthorizedGoalAccessException;
 import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.transaction.SubcategoryNotFoundException;
 import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.transaction.TransactionNotFoundException;
 import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.transaction.UnauthorizedTransactionAccessException;
@@ -127,5 +129,23 @@ public class GlobalExceptionHandler {
                 return ResponseEntity
                                 .status(HttpStatus.BAD_REQUEST)
                                 .body(new ApiResponse<>(null, message));
+        }
+
+        @ExceptionHandler(GoalNotFoundException.class)
+        public ResponseEntity<ApiResponse<Object>> handleGoalNotFound(
+                        GoalNotFoundException ex) {
+
+                return ResponseEntity
+                                .status(HttpStatus.NOT_FOUND)
+                                .body(new ApiResponse<>(null, ex.getMessage()));
+        }
+
+        @ExceptionHandler(UnauthorizedGoalAccessException.class)
+        public ResponseEntity<ApiResponse<Object>> handleUnauthorizedGoalAccess(
+                        UnauthorizedGoalAccessException ex) {
+
+                return ResponseEntity
+                                .status(HttpStatus.FORBIDDEN)
+                                .body(new ApiResponse<>(null, ex.getMessage()));
         }
 }

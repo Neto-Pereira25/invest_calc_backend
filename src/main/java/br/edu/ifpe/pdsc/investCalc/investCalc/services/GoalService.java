@@ -2,7 +2,6 @@ package br.edu.ifpe.pdsc.investCalc.investCalc.services;
 
 import java.util.List;
 
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,7 +11,8 @@ import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.goals.UpdateGoalProgressReque
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.goals.UpdateGoalRequestDTO;
 import br.edu.ifpe.pdsc.investCalc.investCalc.entities.Goal;
 import br.edu.ifpe.pdsc.investCalc.investCalc.entities.User;
-import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.ResourceNotFoundException;
+import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.goals.GoalNotFoundException;
+import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.goals.UnauthorizedGoalAccessException;
 import br.edu.ifpe.pdsc.investCalc.investCalc.repositories.GoalRepository;
 
 @Service
@@ -107,12 +107,10 @@ public class GoalService {
             User authenticatedUser) {
 
         Goal goal = goalRepository.findById(goalId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Goal not found."));
+                .orElseThrow(() -> new GoalNotFoundException());
 
         if (!goal.getUser().getId().equals(authenticatedUser.getId())) {
-            throw new AccessDeniedException(
-                    "You do not have permission to access this goal.");
+            throw new UnauthorizedGoalAccessException();
         }
 
         return goal;
