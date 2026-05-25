@@ -39,6 +39,28 @@ public class GlobalExceptionHandler {
                                 .body(new ApiResponse<>(null, ex.getMessage()));
         }
 
+        @ExceptionHandler(InvalidPasswordResetTokenException.class)
+        public ResponseEntity<ApiResponse<Object>> handleInvalidPasswordResetToken(InvalidPasswordResetTokenException ex) {
+                return ResponseEntity
+                                .status(HttpStatus.BAD_REQUEST)
+                                .body(new ApiResponse<>(null, ex.getMessage()));
+        }
+
+        @ExceptionHandler(PasswordResetTokenExpiredException.class)
+        public ResponseEntity<ApiResponse<Object>> handlePasswordResetTokenExpired(PasswordResetTokenExpiredException ex) {
+                return ResponseEntity
+                                .status(HttpStatus.BAD_REQUEST)
+                                .body(new ApiResponse<>(null, ex.getMessage()));
+        }
+
+        @ExceptionHandler(PasswordResetTokenAlreadyUsedException.class)
+        public ResponseEntity<ApiResponse<Object>> handlePasswordResetTokenAlreadyUsed(
+                        PasswordResetTokenAlreadyUsedException ex) {
+                return ResponseEntity
+                                .status(HttpStatus.BAD_REQUEST)
+                                .body(new ApiResponse<>(null, ex.getMessage()));
+        }
+
         @ExceptionHandler(MethodArgumentNotValidException.class)
         public ResponseEntity<ApiResponse<Object>> handleValidationException(MethodArgumentNotValidException ex) {
 
