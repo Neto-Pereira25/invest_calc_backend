@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.AuthResponse;
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.ForgotPasswordRequest;
@@ -70,6 +71,7 @@ public class AuthService {
         return new AuthResponse(token, refreshToken.getToken());
     }
 
+    @Transactional
     public void forgotPassword(ForgotPasswordRequest request) {
 
         Optional<User> userOptional = userRepository.findByEmail(request.email());
@@ -93,6 +95,7 @@ public class AuthService {
         System.out.println("Token de recuperacao para " + user.getEmail() + ": " + savedToken.getToken());
     }
 
+    @Transactional
     public void resetPassword(ResetPasswordRequest request) {
 
         PasswordResetToken passwordResetToken = passwordResetTokenRepository.findByToken(request.token())
