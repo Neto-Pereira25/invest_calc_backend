@@ -143,4 +143,28 @@ public class GlobalExceptionHandlerAuthControllerTest {
                 .andExpect(jsonPath("$.message").value("Erro de validacao"))
                 .andExpect(jsonPath("$.data").isArray());
     }
+
+    @Test
+    @DisplayName("Should return 400 and ApiResponse when reset token is invalid")
+    void shouldReturn400WhenResetTokenIsInvalid() throws Exception {
+
+        // ARRANGE
+        doThrow(new InvalidPasswordResetTokenException()).when(authService).resetPassword(any());
+
+        String requestBody = """
+                {
+                    "token": "invalido",
+                    "password": "12345678"
+                }
+                """;
+
+        // ACT & ASSERT
+        mockMvc.perform(post("/api/v1/auth/reset-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.data").doesNotExist())
+                .andExpect(jsonPath("$.message").value("Token de recuperacao invalido"));
+    }
 }

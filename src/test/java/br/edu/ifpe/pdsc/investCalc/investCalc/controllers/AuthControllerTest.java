@@ -218,4 +218,95 @@ public class AuthControllerTest {
                                 .andExpect(jsonPath("$.data").isArray())
                                 .andExpect(jsonPath("$.message").value("Erro de validacao"));
         }
+
+        @Test
+        @DisplayName("POST /auth/forgot-password - should return 200 with generic message")
+        void shouldReturnOkWhenForgotPasswordRequestIsValid() throws Exception {
+
+                // ARRANGE
+                doNothing().when(authService).forgotPassword(any());
+
+                String requestBody = """
+                                {
+                                    "email": "maria@email.com"
+                                }
+                                """;
+
+                // ACT & ASSERT
+                mockMvc.perform(post("/api/v1/auth/forgot-password")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(requestBody))
+                                .andExpect(status().isOk())
+                                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                                .andExpect(jsonPath("$.data").doesNotExist())
+                                .andExpect(jsonPath("$.message")
+                                                .value("Se o email estiver cadastrado, voce recebera instrucoes para redefinir a senha"));
+        }
+
+        @Test
+        @DisplayName("POST /auth/forgot-password - should return 422 when request is invalid")
+        void shouldReturnUnprocessableEntityWhenForgotPasswordRequestIsInvalid() throws Exception {
+
+                // ARRANGE
+                String requestBody = """
+                                {
+                                    "email": "email-invalido"
+                                }
+                                """;
+
+                // ACT & ASSERT
+                mockMvc.perform(post("/api/v1/auth/forgot-password")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(requestBody))
+                                .andExpect(status().isUnprocessableEntity())
+                                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                                .andExpect(jsonPath("$.data").isArray())
+                                .andExpect(jsonPath("$.message").value("Erro de validacao"));
+        }
+
+        @Test
+        @DisplayName("POST /auth/reset-password - should return 200 when request is valid")
+        void shouldReturnOkWhenResetPasswordRequestIsValid() throws Exception {
+
+                // ARRANGE
+                doNothing().when(authService).resetPassword(any());
+
+                String requestBody = """
+                                {
+                                    "token": "token-value",
+                                    "password": "12345678"
+                                }
+                                """;
+
+                // ACT & ASSERT
+                mockMvc.perform(post("/api/v1/auth/reset-password")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(requestBody))
+                                .andExpect(status().isOk())
+                                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                                .andExpect(jsonPath("$.data").doesNotExist())
+                                .andExpect(jsonPath("$.message").value("Senha redefinida com sucesso"));
+        }
+
+        @Test
+        @DisplayName("POST /auth/reset-password - should return 422 when password is invalid")
+        void shouldReturnUnprocessableEntityWhenResetPasswordRequestIsInvalid() throws Exception {
+
+                // ARRANGE
+                String requestBody = """
+                                {
+                                    "token": "token-value",
+                                    "password": "123"
+                                }
+                                """;
+
+                // ACT & ASSERT
+                mockMvc.perform(post("/api/v1/auth/reset-password")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(requestBody))
+                                .andExpect(status().isUnprocessableEntity())
+                                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                                .andExpect(jsonPath("$.data").isArray())
+                                .andExpect(jsonPath("$.message").value("Erro de validacao"));
+        }
 }
