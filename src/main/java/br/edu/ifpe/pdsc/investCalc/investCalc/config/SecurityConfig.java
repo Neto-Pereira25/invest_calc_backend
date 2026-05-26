@@ -47,6 +47,7 @@ public class SecurityConfig {
                                 .authorizeHttpRequests(auth -> auth
                                                 .requestMatchers("api/v1/auth/**").permitAll()
                                                 .requestMatchers("api/v1/compound-interest-simulator/**").permitAll()
+                                                .requestMatchers("api/v1/users/**").authenticated()
                                                 .anyRequest().authenticated())
                                 .exceptionHandling(ex -> ex
                                                 .authenticationEntryPoint(customAuthenticationEntryPoint)
@@ -68,7 +69,7 @@ public class SecurityConfig {
 
                 // 👉 Métodos permitidos
                 config.setAllowedMethods(List.of(
-                                "GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                                "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 
                 // 👉 Headers permitidos
                 config.setAllowedHeaders(List.of("*"));

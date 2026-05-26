@@ -17,4 +17,10 @@ public class UserService {
         return userRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
     }
+
+    public User updateAuthenticatedUserName(UserDetails userDetails, String name) {
+        var user = getAuthenticatedUser(userDetails);
+        user.setName(name);
+        return userRepository.save(user);
+    }
 }
