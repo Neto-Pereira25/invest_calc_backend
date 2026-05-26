@@ -64,8 +64,8 @@ public class UserControllerTest {
 
         mockMvc.perform(get("/api/v1/users/profile"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.email").value("user@email.com"))
-                .andExpect(jsonPath("$.data.name").value("Test User"))
+                .andExpect(jsonPath("$.data.email").value(userResponse.email()))
+                .andExpect(jsonPath("$.data.name").value(userResponse.name()))
                 .andExpect(jsonPath("$.message").value("Dados do usuário retornados com sucesso"));
     }
 
@@ -80,8 +80,8 @@ public class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").exists())
                 .andExpect(jsonPath("$.message").exists())
-                .andExpect(jsonPath("$.data.id").value(1))
-                .andExpect(jsonPath("$.data.email").value("user@email.com"));
+                .andExpect(jsonPath("$.data.id").value(userResponse.id()))
+                .andExpect(jsonPath("$.data.email").value(userResponse.email()));
     }
 
     @Test
