@@ -23,9 +23,7 @@ public class SpendingLimitService {
         this.repository = repository;
     }
 
-    public SpendingLimitResponseDTO createLimit(
-            UpdateSpendingLimitRequestDTO dto,
-            User authenticatedUser) {
+    public SpendingLimitResponseDTO createLimit(UpdateSpendingLimitRequestDTO dto, User authenticatedUser) {
 
         if (repository.findByUser(authenticatedUser).isPresent()) {
             throw new SpendingLimitAlreadyExistsException();
@@ -42,10 +40,10 @@ public class SpendingLimitService {
     }
 
     @Transactional(readOnly = true)
-    public SpendingLimitResponseDTO getLimit(
-            User authenticatedUser) {
+    public SpendingLimitResponseDTO getLimit(User authenticatedUser) {
 
-        Optional<SpendingLimit> spendingLimit = repository.findByUser(authenticatedUser);
+        Optional<SpendingLimit> spendingLimit = repository
+                .findByUser(authenticatedUser);
 
         return spendingLimit
                 .map(this::mapToResponse)
@@ -56,9 +54,9 @@ public class SpendingLimitService {
             UpdateSpendingLimitRequestDTO dto,
             User authenticatedUser) {
 
-        SpendingLimit spendingLimit = repository.findByUser(authenticatedUser)
-                .orElseThrow(
-                        SpendingLimitNotConfiguredException::new);
+        SpendingLimit spendingLimit = repository
+                .findByUser(authenticatedUser)
+                .orElseThrow(SpendingLimitNotConfiguredException::new);
 
         spendingLimit.setAmount(dto.amount());
 
@@ -67,19 +65,16 @@ public class SpendingLimitService {
         return mapToResponse(updatedLimit);
     }
 
-    public void deleteLimit(
-            User authenticatedUser) {
+    public void deleteLimit(User authenticatedUser) {
 
-        SpendingLimit spendingLimit = repository.findByUser(authenticatedUser)
-                .orElseThrow(
-                        SpendingLimitNotConfiguredException::new);
+        SpendingLimit spendingLimit = repository
+                .findByUser(authenticatedUser)
+                .orElseThrow(SpendingLimitNotConfiguredException::new);
 
         repository.delete(spendingLimit);
     }
 
-    private SpendingLimitResponseDTO mapToResponse(
-            SpendingLimit spendingLimit) {
-
+    private SpendingLimitResponseDTO mapToResponse(SpendingLimit spendingLimit) {
         return new SpendingLimitResponseDTO(
                 spendingLimit.getId(),
                 spendingLimit.getAmount(),
