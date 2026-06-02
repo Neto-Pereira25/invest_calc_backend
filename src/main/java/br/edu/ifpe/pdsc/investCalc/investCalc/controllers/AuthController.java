@@ -11,9 +11,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.ApiResponse;
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.AuthResponse;
+import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.ForgotPasswordRequest;
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.LoginRequest;
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.RefreshRequest;
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.RegisterRequest;
+import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.ResetPasswordRequest;
 import br.edu.ifpe.pdsc.investCalc.investCalc.entities.RefreshToken;
 import br.edu.ifpe.pdsc.investCalc.investCalc.security.JwtService;
 import br.edu.ifpe.pdsc.investCalc.investCalc.security.RefreshTokenService;
@@ -53,6 +55,19 @@ public class AuthController {
 
         return new ApiResponse<>(new AuthResponse(newAccessToken, request.refreshToken()),
                 "Token atualizado com sucesso");
+    }
+
+    @PostMapping("/forgot-password")
+    public ApiResponse<Void> forgotPassword(@RequestBody @Valid ForgotPasswordRequest request) {
+        authService.forgotPassword(request);
+        return new ApiResponse<>(null,
+                "Se o email estiver cadastrado, voce recebera instrucoes para redefinir a senha");
+    }
+
+    @PostMapping("/reset-password")
+    public ApiResponse<Void> resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
+        authService.resetPassword(request);
+        return new ApiResponse<>(null, "Senha redefinida com sucesso");
     }
 
     @GetMapping("/public")
