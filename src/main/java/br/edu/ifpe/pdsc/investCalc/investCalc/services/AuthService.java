@@ -117,4 +117,11 @@ public class AuthService {
         passwordResetToken.setUsed(true);
         passwordResetTokenRepository.save(passwordResetToken);
     }
+
+    public String getPasswordResetTokenForE2E(String email) {
+        PasswordResetToken passwordResetToken = passwordResetTokenRepository.findLatestUnusedByEmail(email)
+                .orElseThrow(InvalidPasswordResetTokenException::new);
+
+        return passwordResetToken.getToken();
+    }
 }
