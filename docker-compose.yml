@@ -11,7 +11,79 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p123456789"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
     command: --default-authentication-plugin=mysql_native_password
+
+  app-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: investcalc-api-dev
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: investcalcdb
+      DB_USER: root
+      DB_PASSWORD: 123456789
+      TZ: UTC
+    ports:
+      - "8080:8080"
+    profiles:
+      - dev
+
+  app-prd:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: investcalc-api-prd
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: prd
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: investcalcdb
+      DB_USER: root
+      DB_PASSWORD: 123456789
+      TZ: UTC
+    ports:
+      - "8080:8080"
+    profiles:
+      - prd
+
+  app-e2e:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: investcalc-api-e2e
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: e2e
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: investcalcdb
+      DB_USER: root
+      DB_PASSWORD: 123456789
+      TZ: UTC
+    ports:
+      - "8080:8080"
+    profiles:
+      - e2e
 
 volumes:
   mysql_data:
