@@ -1,5 +1,10 @@
 package br.edu.ifpe.pdsc.investCalc.investCalc.config;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -20,176 +25,119 @@ public class DataLoader implements CommandLineRunner {
         @Override
         public void run(String... args) {
 
-                if (categoryRepository.count() > 0)
+                Map<String, Category> categories = seedCategories();
+                seedSubcategories(categories);
+        }
+
+        private Map<String, Category> seedCategories() {
+                Map<String, Category> categoriesByKey = new HashMap<>();
+
+                categoryRepository.findAll().forEach(
+                                category -> categoriesByKey.put(categoryKey(category.getName(), category.getType()), category));
+
+                ensureCategory(categoriesByKey, "Despesa-Moradia", TransactionType.EXPENSE);
+                ensureCategory(categoriesByKey, "Despesa-Servico-Essencial", TransactionType.EXPENSE);
+                ensureCategory(categoriesByKey, "Despesa-Alimentacao", TransactionType.EXPENSE);
+                ensureCategory(categoriesByKey, "Despesa-Transporte", TransactionType.EXPENSE);
+                ensureCategory(categoriesByKey, "Despesa-Saude", TransactionType.EXPENSE);
+                ensureCategory(categoriesByKey, "Despesa-Educacao", TransactionType.EXPENSE);
+                ensureCategory(categoriesByKey, "Despesa-Lazer-Estilo-de-Vida", TransactionType.EXPENSE);
+                ensureCategory(categoriesByKey, "Despesa-Consumo-Pessoal", TransactionType.EXPENSE);
+                ensureCategory(categoriesByKey, "Despesa-Tecnologica", TransactionType.EXPENSE);
+                ensureCategory(categoriesByKey, "Despesa-Financeira", TransactionType.EXPENSE);
+                ensureCategory(categoriesByKey, "Outras-Despesas-Relevantes", TransactionType.EXPENSE);
+                ensureCategory(categoriesByKey, "Despesa-Generica", TransactionType.EXPENSE);
+
+                ensureCategory(categoriesByKey, "Trabalho", TransactionType.INCOME);
+                ensureCategory(categoriesByKey, "Renda-Extra", TransactionType.INCOME);
+                ensureCategory(categoriesByKey, "Investimentos", TransactionType.INCOME);
+                ensureCategory(categoriesByKey, "Outras-Fontes-de-Renda", TransactionType.INCOME);
+                ensureCategory(categoriesByKey, "Renda-Generica", TransactionType.INCOME);
+
+                return categoriesByKey;
+        }
+
+        private void seedSubcategories(Map<String, Category> categoriesByKey) {
+                ensureSubcategories(categoriesByKey, "Despesa-Moradia", TransactionType.EXPENSE, "Aluguel", "Condominio", "IPTU",
+                                "Energia", "Agua", "Gas", "Manutencao-Residencial", "Reforma", "Moveis-Decoracao", "Outros");
+
+                ensureSubcategories(categoriesByKey, "Despesa-Servico-Essencial", TransactionType.EXPENSE, "Internet",
+                                "Telefone-Movel", "Planos-Seguros", "Outros");
+
+                ensureSubcategories(categoriesByKey, "Despesa-Alimentacao", TransactionType.EXPENSE, "Supermercado", "Restaurante",
+                                "Delivery", "Cafeteria-Lanche", "Outros");
+
+                ensureSubcategories(categoriesByKey, "Despesa-Transporte", TransactionType.EXPENSE, "Combustivel",
+                                "Transporte-Publico", "Uber", "Manutencao-Veicular", "Seguro-Veicular", "Estacionamento",
+                                "Pedagio", "Multas", "Outros");
+
+                ensureSubcategories(categoriesByKey, "Despesa-Saude", TransactionType.EXPENSE, "Plano-Saude", "Farmacia",
+                                "Consultas", "Exames", "Terapia", "Psicologia", "Odontologia", "Outros");
+
+                ensureSubcategories(categoriesByKey, "Despesa-Educacao", TransactionType.EXPENSE, "Mensalidade-Escola",
+                                "Mensalidade-Universidade", "Cursos", "Livros", "Material-Escolar");
+
+                ensureSubcategories(categoriesByKey, "Despesa-Lazer-Estilo-de-Vida", TransactionType.EXPENSE, "Streaming", "Cinema",
+                                "Evento", "Hobbies", "Viagem", "Hotel", "Passeio", "Outros");
+
+                ensureSubcategories(categoriesByKey, "Despesa-Consumo-Pessoal", TransactionType.EXPENSE, "Roupa", "Calcado",
+                                "Acessorio", "Cosmetico", "Higiene", "Cuidado-Pessoal", "Outros");
+
+                ensureSubcategories(categoriesByKey, "Despesa-Tecnologica", TransactionType.EXPENSE, "Eletronico", "Software",
+                                "Gadget", "Outros");
+
+                ensureSubcategories(categoriesByKey, "Despesa-Financeira", TransactionType.EXPENSE, "Taxa-Bancaria", "Juros",
+                                "Imposto", "Tarifa-Cartao", "Divida", "Parcela", "Outros");
+
+                ensureSubcategories(categoriesByKey, "Outras-Despesas-Relevantes", TransactionType.EXPENSE, "Doacao", "Presente",
+                                "Pet", "Filhos", "Servico-Domestico", "Outros");
+
+                ensureSubcategories(categoriesByKey, "Despesa-Generica", TransactionType.EXPENSE, "Outros");
+
+                ensureSubcategories(categoriesByKey, "Trabalho", TransactionType.INCOME, "Salario", "Bonus", "Comissao",
+                                "Hora-Extra", "Participacao-Nos-Lucros", "Outros");
+
+                ensureSubcategories(categoriesByKey, "Renda-Extra", TransactionType.INCOME, "Freelance", "Servico",
+                                "Venda-de-Produto", "Venda-de-Bens", "Outros");
+
+                ensureSubcategories(categoriesByKey, "Investimentos", TransactionType.INCOME, "Dividendos", "Juros-Recebidos",
+                                "Rendimentos-Renda-Fixa", "Aluguel", "Ganho-de-Capital", "Royalties", "Outros");
+
+                ensureSubcategories(categoriesByKey, "Outras-Fontes-de-Renda", TransactionType.INCOME, "Presente", "Heranca",
+                                "Reembolso", "Restituicao-de-Impostos", "Beneficios-Governamentais", "Outros");
+
+                ensureSubcategories(categoriesByKey, "Renda-Generica", TransactionType.INCOME, "Outros");
+        }
+
+        private void ensureCategory(Map<String, Category> categoriesByKey, String name, TransactionType type) {
+                String key = categoryKey(name, type);
+                if (categoriesByKey.containsKey(key)) {
                         return;
+                }
 
-                // DESPESAS
-                Category habitation = categoryRepository.save(
-                                new Category(null, "Despesa-Moradia", TransactionType.EXPENSE, null));
+                Category category = categoryRepository.save(new Category(null, name, type, null));
+                categoriesByKey.put(key, category);
+        }
 
-                subcategoryRepository.save(new Subcategory(null, "Aluguel", habitation));
-                subcategoryRepository.save(new Subcategory(null, "Condominio", habitation));
-                subcategoryRepository.save(new Subcategory(null, "IPTU", habitation));
-                subcategoryRepository.save(new Subcategory(null, "Energia", habitation));
-                subcategoryRepository.save(new Subcategory(null, "Agua", habitation));
-                subcategoryRepository.save(new Subcategory(null, "Gas", habitation));
-                subcategoryRepository.save(new Subcategory(null, "Manutencao-Residencial", habitation));
-                subcategoryRepository.save(new Subcategory(null, "Reforma", habitation));
-                subcategoryRepository.save(new Subcategory(null, "Moveis-Decoracao", habitation));
-                subcategoryRepository.save(new Subcategory(null, "Outros", habitation));
+        private void ensureSubcategories(Map<String, Category> categoriesByKey, String categoryName, TransactionType type,
+                        String... expectedSubcategories) {
+                Category category = categoriesByKey.get(categoryKey(categoryName, type));
+                if (category == null) {
+                        return;
+                }
 
-                Category essentialService = categoryRepository.save(
-                                new Category(null, "Despesa-Servico-Essencial", TransactionType.EXPENSE, null));
+                List<String> existingSubcategoryNames = subcategoryRepository.findByCategory(category)
+                                .stream()
+                                .map(Subcategory::getName)
+                                .toList();
 
-                subcategoryRepository.save(new Subcategory(null, "Internet", essentialService));
-                subcategoryRepository.save(new Subcategory(null, "Telefone-Movel", essentialService));
-                subcategoryRepository.save(new Subcategory(null, "Planos-Seguros", essentialService));
-                subcategoryRepository.save(new Subcategory(null, "Outros", essentialService));
+                Arrays.stream(expectedSubcategories)
+                                .filter(subcategoryName -> !existingSubcategoryNames.contains(subcategoryName))
+                                .forEach(subcategoryName ->
+                                                subcategoryRepository.save(new Subcategory(null, subcategoryName, category)));
+        }
 
-                Category food = categoryRepository.save(
-                                new Category(null, "Despesa-Alimentacao", TransactionType.EXPENSE, null));
-
-                subcategoryRepository.save(new Subcategory(null, "Supermercado", food));
-                subcategoryRepository.save(new Subcategory(null, "Restaurante", food));
-                subcategoryRepository.save(new Subcategory(null, "Delivery", food));
-                subcategoryRepository.save(new Subcategory(null, "Cafeteria-Lanche", food));
-                subcategoryRepository.save(new Subcategory(null, "Outros", food));
-
-                Category transport = categoryRepository.save(
-                                new Category(null, "Despesa-Transporte", TransactionType.EXPENSE, null));
-
-                subcategoryRepository.save(new Subcategory(null, "Combustivel", transport));
-                subcategoryRepository.save(new Subcategory(null, "Transporte-Publico", transport));
-                subcategoryRepository.save(new Subcategory(null, "Uber", transport));
-                subcategoryRepository.save(new Subcategory(null, "Manutencao-Veicular", transport));
-                subcategoryRepository.save(new Subcategory(null, "Seguro-Veicular", transport));
-                subcategoryRepository.save(new Subcategory(null, "Estacionamento", transport));
-                subcategoryRepository.save(new Subcategory(null, "Pedagio", transport));
-                subcategoryRepository.save(new Subcategory(null, "Multas", transport));
-                subcategoryRepository.save(new Subcategory(null, "Outros", transport));
-
-                Category health = categoryRepository.save(
-                                new Category(null, "Despesa-Saude", TransactionType.EXPENSE, null));
-
-                subcategoryRepository.save(new Subcategory(null, "Plano-Saude", health));
-                subcategoryRepository.save(new Subcategory(null, "Farmacia", health));
-                subcategoryRepository.save(new Subcategory(null, "Consultas", health));
-                subcategoryRepository.save(new Subcategory(null, "Exames", health));
-                subcategoryRepository.save(new Subcategory(null, "Terapia", health));
-                subcategoryRepository.save(new Subcategory(null, "Psicologia", health));
-                subcategoryRepository.save(new Subcategory(null, "Odontologia", health));
-                subcategoryRepository.save(new Subcategory(null, "Outros", health));
-
-                Category education = categoryRepository.save(
-                                new Category(null, "Despesa-Educacao", TransactionType.EXPENSE, null));
-
-                subcategoryRepository.save(new Subcategory(null, "Mensalidade-Escola", education));
-                subcategoryRepository.save(new Subcategory(null, "Mensalidade-Universidade", education));
-                subcategoryRepository.save(new Subcategory(null, "Cursos", education));
-                subcategoryRepository.save(new Subcategory(null, "Livros", education));
-                subcategoryRepository.save(new Subcategory(null, "Material-Escolar", education));
-
-                Category leisureAndLifestyle = categoryRepository.save(
-                                new Category(null, "Despesa-Lazer-Estilo-de-Vida", TransactionType.EXPENSE, null));
-
-                subcategoryRepository.save(new Subcategory(null, "Streaming", leisureAndLifestyle));
-                subcategoryRepository.save(new Subcategory(null, "Cinema", leisureAndLifestyle));
-                subcategoryRepository.save(new Subcategory(null, "Evento", leisureAndLifestyle));
-                subcategoryRepository.save(new Subcategory(null, "Hobbies", leisureAndLifestyle));
-                subcategoryRepository.save(new Subcategory(null, "Viagem", leisureAndLifestyle));
-                subcategoryRepository.save(new Subcategory(null, "Hotel", leisureAndLifestyle));
-                subcategoryRepository.save(new Subcategory(null, "Passeio", leisureAndLifestyle));
-                subcategoryRepository.save(new Subcategory(null, "Outros", leisureAndLifestyle));
-
-                Category personalConsumption = categoryRepository.save(
-                                new Category(null, "Despesa-Consumo-Pessoal", TransactionType.EXPENSE, null));
-
-                subcategoryRepository.save(new Subcategory(null, "Roupa", personalConsumption));
-                subcategoryRepository.save(new Subcategory(null, "Calcado", personalConsumption));
-                subcategoryRepository.save(new Subcategory(null, "Acessorio", personalConsumption));
-                subcategoryRepository.save(new Subcategory(null, "Cosmetico", personalConsumption));
-                subcategoryRepository.save(new Subcategory(null, "Higiene", personalConsumption));
-                subcategoryRepository.save(new Subcategory(null, "Cuidado-Pessoal", personalConsumption));
-                subcategoryRepository.save(new Subcategory(null, "Outros", personalConsumption));
-
-                Category technology = categoryRepository.save(
-                                new Category(null, "Despesa-Tecnologica", TransactionType.EXPENSE, null));
-
-                subcategoryRepository.save(new Subcategory(null, "Eletronico", technology));
-                subcategoryRepository.save(new Subcategory(null, "Software", technology));
-                subcategoryRepository.save(new Subcategory(null, "Gadget", technology));
-                subcategoryRepository.save(new Subcategory(null, "Outros", technology));
-
-                Category financialExpense = categoryRepository.save(
-                                new Category(null, "Despesa-Financeira", TransactionType.EXPENSE, null));
-
-                subcategoryRepository.save(new Subcategory(null, "Taxa-Bancaria", financialExpense));
-                subcategoryRepository.save(new Subcategory(null, "Juros", financialExpense));
-                subcategoryRepository.save(new Subcategory(null, "Imposto", financialExpense));
-                subcategoryRepository.save(new Subcategory(null, "Tarifa-Cartao", financialExpense));
-                subcategoryRepository.save(new Subcategory(null, "Divida", financialExpense));
-                subcategoryRepository.save(new Subcategory(null, "Parcela", financialExpense));
-                subcategoryRepository.save(new Subcategory(null, "Outros", financialExpense));
-
-                Category otherRelevantExpense = categoryRepository.save(
-                                new Category(null, "Outras-Despesas-Relevantes", TransactionType.EXPENSE, null));
-
-                subcategoryRepository.save(new Subcategory(null, "Doacao", otherRelevantExpense));
-                subcategoryRepository.save(new Subcategory(null, "Presente", otherRelevantExpense));
-                subcategoryRepository.save(new Subcategory(null, "Pet", otherRelevantExpense));
-                subcategoryRepository.save(new Subcategory(null, "Filhos", otherRelevantExpense));
-                subcategoryRepository.save(new Subcategory(null, "Servico-Domestico", otherRelevantExpense));
-                subcategoryRepository.save(new Subcategory(null, "Outros", otherRelevantExpense));
-
-                Category genericExpense = categoryRepository.save(
-                                new Category(null, "Despesa-Generica", TransactionType.EXPENSE, null));
-
-                subcategoryRepository.save(new Subcategory(null, "Outros", genericExpense));
-
-                // RECEITAS
-                Category job = categoryRepository.save(
-                                new Category(null, "Trabalho", TransactionType.INCOME, null));
-
-                subcategoryRepository.save(new Subcategory(null, "Salario", job));
-                subcategoryRepository.save(new Subcategory(null, "Bonus", job));
-                subcategoryRepository.save(new Subcategory(null, "Comissao", job));
-                subcategoryRepository.save(new Subcategory(null, "Hora-Extra", job));
-                subcategoryRepository.save(new Subcategory(null, "Participacao-Nos-Lucros", job));
-                subcategoryRepository.save(new Subcategory(null, "Outros", job));
-
-                Category extraIncome = categoryRepository.save(
-                                new Category(null, "Renda-Extra", TransactionType.INCOME, null));
-
-                subcategoryRepository.save(new Subcategory(null, "Freelance", extraIncome));
-                subcategoryRepository.save(new Subcategory(null, "Servico", extraIncome));
-                subcategoryRepository.save(new Subcategory(null, "Venda-de-Produto", extraIncome));
-                subcategoryRepository.save(new Subcategory(null, "Venda-de-Bens", extraIncome));
-                subcategoryRepository.save(new Subcategory(null, "Outros", extraIncome));
-
-                Category investments = categoryRepository.save(
-                                new Category(null, "Investimentos", TransactionType.INCOME, null));
-
-                subcategoryRepository.save(new Subcategory(null, "Dividendos", investments));
-                subcategoryRepository.save(new Subcategory(null, "Juros-Recebidos", investments));
-                subcategoryRepository.save(new Subcategory(null, "Rendimentos-Renda-Fixa", investments));
-                subcategoryRepository.save(new Subcategory(null, "Aluguel", investments));
-                subcategoryRepository.save(new Subcategory(null, "Ganho-de-Capital", investments));
-                subcategoryRepository.save(new Subcategory(null, "Royalties", investments));
-                subcategoryRepository.save(new Subcategory(null, "Outros", investments));
-
-                Category otherSourcesofIncome = categoryRepository.save(
-                                new Category(null, "Outras-Fontes-de-Renda", TransactionType.INCOME, null));
-
-                subcategoryRepository.save(new Subcategory(null, "Presente", otherSourcesofIncome));
-                subcategoryRepository.save(new Subcategory(null, "Heranca", otherSourcesofIncome));
-                subcategoryRepository.save(new Subcategory(null, "Reembolso", otherSourcesofIncome));
-                subcategoryRepository.save(new Subcategory(null, "Restituicao-de-Impostos", otherSourcesofIncome));
-                subcategoryRepository.save(new Subcategory(null, "Beneficios-Governamentais", otherSourcesofIncome));
-                subcategoryRepository.save(new Subcategory(null, "Outros", otherSourcesofIncome));
-
-                Category genericSourceIncome = categoryRepository.save(
-                                new Category(null, "Renda-Generica", TransactionType.INCOME, null));
-
-                subcategoryRepository.save(new Subcategory(null, "Outros", genericSourceIncome));
+        private String categoryKey(String name, TransactionType type) {
+                return type.name() + "::" + name;
         }
 }

@@ -1,17 +1,131 @@
 services:
-  db:
+  db-dev:
     image: mysql:8.0
-    container_name: investcalc-mysql
+    container_name: investcalc-mysql-dev
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: 123456789
-      MYSQL_DATABASE: investcalcdb
+      MYSQL_DATABASE: investcalcdb_dev
       TZ: UTC
     ports:
       - "3306:3306"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - mysql_data_dev:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p123456789"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
     command: --default-authentication-plugin=mysql_native_password
+    profiles:
+      - dev
+
+  db-prd:
+    image: mysql:8.0
+    container_name: investcalc-mysql-prd
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456789
+      MYSQL_DATABASE: investcalcdb_prd
+      TZ: UTC
+    volumes:
+      - mysql_data_prd:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p123456789"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    command: --default-authentication-plugin=mysql_native_password
+    profiles:
+      - prd
+
+  db-e2e:
+    image: mysql:8.0
+    container_name: investcalc-mysql-e2e
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456789
+      MYSQL_DATABASE: investcalcdb_e2e
+      TZ: UTC
+    tmpfs:
+      - /var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p123456789"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    command: --default-authentication-plugin=mysql_native_password
+    profiles:
+      - e2e
+
+  app-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: investcalc-api-dev
+    restart: unless-stopped
+    depends_on:
+      db-dev:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      DB_HOST: db-dev
+      DB_PORT: 3306
+      DB_NAME: investcalcdb_dev
+      DB_USER: root
+      DB_PASSWORD: 123456789
+      TZ: UTC
+    ports:
+      - "8080:8080"
+    profiles:
+      - dev
+
+  app-prd:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: investcalc-api-prd
+    restart: unless-stopped
+    depends_on:
+      db-prd:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: prd
+      DB_HOST: db-prd
+      DB_PORT: 3306
+      DB_NAME: investcalcdb_prd
+      DB_USER: root
+      DB_PASSWORD: 123456789
+      TZ: UTC
+    ports:
+      - "8080:8080"
+    profiles:
+      - prd
+
+  app-e2e:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: investcalc-api-e2e
+    restart: unless-stopped
+    depends_on:
+      db-e2e:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: e2e
+      DB_HOST: db-e2e
+      DB_PORT: 3306
+      DB_NAME: investcalcdb_e2e
+      DB_USER: root
+      DB_PASSWORD: 123456789
+      TZ: UTC
+    ports:
+      - "8080:8080"
+    profiles:
+      - e2e
 
 volumes:
-  mysql_data:
+  mysql_data_dev:
+  mysql_data_prd:
