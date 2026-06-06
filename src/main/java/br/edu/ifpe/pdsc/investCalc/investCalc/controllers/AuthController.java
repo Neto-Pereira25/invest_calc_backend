@@ -96,5 +96,6 @@ public class AuthController {
             @RequestParam String email) {
         String token = authService.getPasswordResetTokenForE2E(email);
         return new ApiResponse<>(new PasswordResetTokenResponse(token), "Token recuperado com sucesso");
+
     }
 }
