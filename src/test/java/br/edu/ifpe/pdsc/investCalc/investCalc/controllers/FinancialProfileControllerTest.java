@@ -62,6 +62,11 @@ class FinancialProfileControllerTest {
 
                 currentProfileResponse = FinancialProfileResponseDTO.builder()
                                 .profile(FinancialProfile.INVESTIDOR)
+                                .description("Perfil com foco em crescimento de patrimonio")
+                                .strengths(List.of("Visao de longo prazo", "Disciplina financeira"))
+                                .limitations(List.of("Possivel excesso de confianca"))
+                                .recommendations(List.of("Diversificar patrimonio", "Revisar metas"))
+                                .suggestedGoals(List.of("Aumentar renda passiva", "Independencia financeira"))
                                 .devedorScore(1)
                                 .gastadorScore(2)
                                 .desligadoScore(3)
@@ -104,6 +109,12 @@ class FinancialProfileControllerTest {
                                 .content(requestBody))
                                 .andExpect(status().isCreated())
                                 .andExpect(jsonPath("$.data.profile").value("INVESTIDOR"))
+                                .andExpect(jsonPath("$.data.description")
+                                                .value("Perfil com foco em crescimento de patrimonio"))
+                                .andExpect(jsonPath("$.data.strengths[0]").value("Visao de longo prazo"))
+                                .andExpect(jsonPath("$.data.limitations[0]").value("Possivel excesso de confianca"))
+                                .andExpect(jsonPath("$.data.recommendations[0]").value("Diversificar patrimonio"))
+                                .andExpect(jsonPath("$.data.suggestedGoals[0]").value("Aumentar renda passiva"))
                                 .andExpect(jsonPath("$.message").value("Financial profile successfully calculated."));
         }
 
@@ -133,6 +144,9 @@ class FinancialProfileControllerTest {
                 mockMvc.perform(get("/api/v1/financial-profile"))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.data.profile").value("INVESTIDOR"))
+                                .andExpect(jsonPath("$.data.description")
+                                                .value("Perfil com foco em crescimento de patrimonio"))
+                                .andExpect(jsonPath("$.data.strengths[1]").value("Disciplina financeira"))
                                 .andExpect(jsonPath("$.message").value("Financial profile successfully retrieved."));
         }
 

@@ -5,6 +5,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
+import br.edu.ifpe.pdsc.investCalc.investCalc.entities.userFinancialProfile.FinancialProfileResult;
 import br.edu.ifpe.pdsc.investCalc.investCalc.enums.userFinancialProfile.FinancialProfile;
 
 public class FinancialProfileScore {
@@ -57,5 +58,33 @@ public class FinancialProfileScore {
         Integer max = MAX_SCORES.get(profile);
 
         return Math.round(((score * 100.0) / max) * 100.0) / 100.0;
+    }
+
+    public static FinancialProfileScore fromResult(
+            FinancialProfileResult result) {
+
+        FinancialProfileScore score = new FinancialProfileScore();
+
+        score.add(
+                FinancialProfile.DEVEDOR,
+                result.getDevedorScore());
+
+        score.add(
+                FinancialProfile.GASTADOR,
+                result.getGastadorScore());
+
+        score.add(
+                FinancialProfile.DESLIGADO,
+                result.getDesligadoScore());
+
+        score.add(
+                FinancialProfile.POUPADOR,
+                result.getPoupadorScore());
+
+        score.add(
+                FinancialProfile.INVESTIDOR,
+                result.getInvestidorScore());
+
+        return score;
     }
 }
