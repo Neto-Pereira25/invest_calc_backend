@@ -6,76 +6,87 @@ import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.userFinancialProfile.Financia
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.userFinancialProfile.FinancialProfileResponseDTO;
 import br.edu.ifpe.pdsc.investCalc.investCalc.entities.userFinancialProfile.FinancialProfileResult;
 import br.edu.ifpe.pdsc.investCalc.investCalc.enums.userFinancialProfile.FinancialProfile;
+import br.edu.ifpe.pdsc.investCalc.investCalc.services.userFinancialProfile.metadata.FinancialProfileDetails;
+import br.edu.ifpe.pdsc.investCalc.investCalc.services.userFinancialProfile.metadata.FinancialProfileMetadata;
 import br.edu.ifpe.pdsc.investCalc.investCalc.services.userFinancialProfile.rules.FinancialProfileScore;
 
 @Component
 public class FinancialProfileMapper {
 
-    public FinancialProfileResponseDTO toResponseDTO(
-            FinancialProfileResult result) {
+        public FinancialProfileResponseDTO toResponseDTO(
+                        FinancialProfileResult result) {
 
-        FinancialProfileScore score = new FinancialProfileScore();
+                FinancialProfileScore score = FinancialProfileScore.fromResult(result);
 
-        score.add(
-                FinancialProfile.DEVEDOR,
-                result.getDevedorScore());
+                FinancialProfileDetails details = FinancialProfileMetadata.get(
+                                result.getProfile());
 
-        score.add(
-                FinancialProfile.GASTADOR,
-                result.getGastadorScore());
+                return FinancialProfileResponseDTO.builder()
+                                .profile(result.getProfile())
 
-        score.add(
-                FinancialProfile.DESLIGADO,
-                result.getDesligadoScore());
+                                .description(
+                                                details.description())
 
-        score.add(
-                FinancialProfile.POUPADOR,
-                result.getPoupadorScore());
+                                .strengths(
+                                                details.strengths())
 
-        score.add(
-                FinancialProfile.INVESTIDOR,
-                result.getInvestidorScore());
+                                .limitations(
+                                                details.limitations())
 
-        return FinancialProfileResponseDTO.builder()
-                .profile(result.getProfile())
+                                .recommendations(
+                                                details.recommendations())
 
-                .devedorScore(result.getDevedorScore())
-                .gastadorScore(result.getGastadorScore())
-                .desligadoScore(result.getDesligadoScore())
-                .poupadorScore(result.getPoupadorScore())
-                .investidorScore(result.getInvestidorScore())
+                                .suggestedGoals(
+                                                details.suggestedGoals())
 
-                .devedorPercentage(
-                        score.getPercentage(
-                                FinancialProfile.DEVEDOR))
+                                .devedorScore(
+                                                result.getDevedorScore())
 
-                .gastadorPercentage(
-                        score.getPercentage(
-                                FinancialProfile.GASTADOR))
+                                .gastadorScore(
+                                                result.getGastadorScore())
 
-                .desligadoPercentage(
-                        score.getPercentage(
-                                FinancialProfile.DESLIGADO))
+                                .desligadoScore(
+                                                result.getDesligadoScore())
 
-                .poupadorPercentage(
-                        score.getPercentage(
-                                FinancialProfile.POUPADOR))
+                                .poupadorScore(
+                                                result.getPoupadorScore())
 
-                .investidorPercentage(
-                        score.getPercentage(
-                                FinancialProfile.INVESTIDOR))
+                                .investidorScore(
+                                                result.getInvestidorScore())
 
-                .assessedAt(result.getAssessedAt())
-                .build();
-    }
+                                .devedorPercentage(
+                                                score.getPercentage(
+                                                                FinancialProfile.DEVEDOR))
 
-    public FinancialProfileHistoryDTO toHistoryDTO(
-            FinancialProfileResult result) {
+                                .gastadorPercentage(
+                                                score.getPercentage(
+                                                                FinancialProfile.GASTADOR))
 
-        return FinancialProfileHistoryDTO.builder()
-                .id(result.getId())
-                .profile(result.getProfile())
-                .assessedAt(result.getAssessedAt())
-                .build();
-    }
+                                .desligadoPercentage(
+                                                score.getPercentage(
+                                                                FinancialProfile.DESLIGADO))
+
+                                .poupadorPercentage(
+                                                score.getPercentage(
+                                                                FinancialProfile.POUPADOR))
+
+                                .investidorPercentage(
+                                                score.getPercentage(
+                                                                FinancialProfile.INVESTIDOR))
+
+                                .assessedAt(
+                                                result.getAssessedAt())
+
+                                .build();
+        }
+
+        public FinancialProfileHistoryDTO toHistoryDTO(
+                        FinancialProfileResult result) {
+
+                return FinancialProfileHistoryDTO.builder()
+                                .id(result.getId())
+                                .profile(result.getProfile())
+                                .assessedAt(result.getAssessedAt())
+                                .build();
+        }
 }

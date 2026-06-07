@@ -1,6 +1,7 @@
 package br.edu.ifpe.pdsc.investCalc.investCalc.dtos.userFinancialProfile;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import br.edu.ifpe.pdsc.investCalc.investCalc.enums.userFinancialProfile.FinancialProfile;
 import lombok.Builder;
@@ -11,6 +12,16 @@ import lombok.Getter;
 public class FinancialProfileResponseDTO {
 
     private FinancialProfile profile;
+
+    private String description;
+
+    private List<String> strengths;
+
+    private List<String> limitations;
+
+    private List<String> recommendations;
+
+    private List<String> suggestedGoals;
 
     private Integer devedorScore;
     private Integer gastadorScore;
