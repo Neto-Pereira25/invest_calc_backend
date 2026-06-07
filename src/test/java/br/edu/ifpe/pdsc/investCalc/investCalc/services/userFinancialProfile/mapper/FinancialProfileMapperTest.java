@@ -2,6 +2,7 @@ package br.edu.ifpe.pdsc.investCalc.investCalc.services.userFinancialProfile.map
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.time.LocalDateTime;
 
@@ -36,6 +37,16 @@ class FinancialProfileMapperTest {
 
         assertNotNull(response);
         assertEquals(FinancialProfile.POUPADOR, response.getProfile());
+        assertNotNull(response.getDescription());
+        assertFalse(response.getDescription().isBlank());
+        assertNotNull(response.getStrengths());
+        assertFalse(response.getStrengths().isEmpty());
+        assertNotNull(response.getLimitations());
+        assertFalse(response.getLimitations().isEmpty());
+        assertNotNull(response.getRecommendations());
+        assertFalse(response.getRecommendations().isEmpty());
+        assertNotNull(response.getSuggestedGoals());
+        assertFalse(response.getSuggestedGoals().isEmpty());
         assertEquals(5, response.getDevedorScore());
         assertEquals(29.41, response.getDevedorPercentage());
         assertEquals(26.67, response.getGastadorPercentage());
