@@ -31,6 +31,8 @@ import br.edu.ifpe.pdsc.investCalc.investCalc.entities.userFinancialProfile.Fina
 import br.edu.ifpe.pdsc.investCalc.investCalc.entities.userFinancialProfile.FinancialProfileResult;
 import br.edu.ifpe.pdsc.investCalc.investCalc.enums.userFinancialProfile.FinancialProfile;
 import br.edu.ifpe.pdsc.investCalc.investCalc.enums.userFinancialProfile.FinancialProfileOption;
+import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.userFinancialProfile.FinancialProfileNotFoundException;
+import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.userFinancialProfile.InvalidFinancialProfileAssessmentException;
 import br.edu.ifpe.pdsc.investCalc.investCalc.repositories.userFinancialProfile.FinancialProfileResultRepository;
 import br.edu.ifpe.pdsc.investCalc.investCalc.services.userFinancialProfile.mapper.FinancialProfileMapper;
 import br.edu.ifpe.pdsc.investCalc.investCalc.services.userFinancialProfile.rules.FinancialProfileRuleEngine;
@@ -118,11 +120,11 @@ class FinancialProfileServiceImplTest {
         FinancialProfileRequestDTO request = new FinancialProfileRequestDTO();
         request.setAnswers(List.of(answer(1, FinancialProfileOption.A)));
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
+        InvalidFinancialProfileAssessmentException exception = assertThrows(
+                InvalidFinancialProfileAssessmentException.class,
                 () -> service.submitAssessment(request, authenticatedUser));
 
-        assertEquals("The questionnaire must contain exactly 10 answers.", exception.getMessage());
+        assertEquals("O questionario deve conter exatamente 10 respostas.", exception.getMessage());
         verify(ruleEngine, never()).calculate(any());
         verify(repository, never()).save(any());
     }
@@ -153,11 +155,11 @@ class FinancialProfileServiceImplTest {
     void shouldThrowExceptionWhenCurrentProfileIsNotFound() {
         when(repository.findTopByUserOrderByAssessedAtDesc(authenticatedUser)).thenReturn(Optional.empty());
 
-        RuntimeException exception = assertThrows(
-                RuntimeException.class,
+        FinancialProfileNotFoundException exception = assertThrows(
+                FinancialProfileNotFoundException.class,
                 () -> service.getCurrentProfile(authenticatedUser));
 
-        assertEquals("Financial profile not found", exception.getMessage());
+        assertEquals("Perfil financeiro nao encontrado", exception.getMessage());
     }
 
     @Test

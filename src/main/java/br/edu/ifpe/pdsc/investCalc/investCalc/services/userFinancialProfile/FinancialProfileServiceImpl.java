@@ -15,6 +15,8 @@ import br.edu.ifpe.pdsc.investCalc.investCalc.entities.User;
 import br.edu.ifpe.pdsc.investCalc.investCalc.entities.userFinancialProfile.FinancialProfileAnswer;
 import br.edu.ifpe.pdsc.investCalc.investCalc.entities.userFinancialProfile.FinancialProfileResult;
 import br.edu.ifpe.pdsc.investCalc.investCalc.enums.userFinancialProfile.FinancialProfile;
+import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.userFinancialProfile.FinancialProfileNotFoundException;
+import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.userFinancialProfile.InvalidFinancialProfileAssessmentException;
 import br.edu.ifpe.pdsc.investCalc.investCalc.repositories.userFinancialProfile.FinancialProfileResultRepository;
 import br.edu.ifpe.pdsc.investCalc.investCalc.services.userFinancialProfile.mapper.FinancialProfileMapper;
 import br.edu.ifpe.pdsc.investCalc.investCalc.services.userFinancialProfile.rules.FinancialProfileRuleEngine;
@@ -58,8 +60,7 @@ public class FinancialProfileServiceImpl implements FinancialProfileService {
         FinancialProfileResult result = repository
                 .findTopByUserOrderByAssessedAtDesc(
                         authenticatedUser)
-                .orElseThrow(() -> new RuntimeException(
-                        "Financial profile not found"));
+                .orElseThrow(FinancialProfileNotFoundException::new);
 
         return mapper.toResponseDTO(result);
     }
@@ -83,8 +84,8 @@ public class FinancialProfileServiceImpl implements FinancialProfileService {
         if (request.getAnswers() == null ||
                 request.getAnswers().size() != 10) {
 
-            throw new IllegalArgumentException(
-                    "The questionnaire must contain exactly 10 answers.");
+            throw new InvalidFinancialProfileAssessmentException(
+                    "O questionario deve conter exatamente 10 respostas.");
         }
     }
 

@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.userFinancialProfile.FinancialProfileAnswerRequestDTO;
 import br.edu.ifpe.pdsc.investCalc.investCalc.enums.userFinancialProfile.FinancialProfile;
 import br.edu.ifpe.pdsc.investCalc.investCalc.enums.userFinancialProfile.FinancialProfileOption;
+import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.userFinancialProfile.InvalidFinancialProfileAssessmentException;
 
 class FinancialProfileRuleEngineTest {
 
@@ -38,8 +39,8 @@ class FinancialProfileRuleEngineTest {
     void shouldThrowExceptionWhenQuestionIsNotMapped() {
         List<FinancialProfileAnswerRequestDTO> answers = List.of(answer(99, FinancialProfileOption.A));
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
+        InvalidFinancialProfileAssessmentException exception = assertThrows(
+            InvalidFinancialProfileAssessmentException.class,
                 () -> ruleEngine.calculate(answers));
 
         assertEquals("Question not mapped: 99", exception.getMessage());
@@ -50,8 +51,8 @@ class FinancialProfileRuleEngineTest {
     void shouldThrowExceptionWhenOptionIsNotMapped() {
         List<FinancialProfileAnswerRequestDTO> answers = List.of(answer(1, null));
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
+        InvalidFinancialProfileAssessmentException exception = assertThrows(
+            InvalidFinancialProfileAssessmentException.class,
                 () -> ruleEngine.calculate(answers));
 
         assertEquals("Option not mapped: null", exception.getMessage());

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.userFinancialProfile.FinancialProfileAnswerRequestDTO;
 import br.edu.ifpe.pdsc.investCalc.investCalc.enums.userFinancialProfile.FinancialProfile;
+import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.userFinancialProfile.InvalidFinancialProfileAssessmentException;
 
 @Component
 public class FinancialProfileRuleEngine {
@@ -22,7 +23,7 @@ public class FinancialProfileRuleEngine {
                     .get(answer.getQuestionNumber());
 
             if (questionRules == null) {
-                throw new IllegalArgumentException(
+                throw new InvalidFinancialProfileAssessmentException(
                         "Question not mapped: "
                                 + answer.getQuestionNumber());
             }
@@ -30,7 +31,7 @@ public class FinancialProfileRuleEngine {
             Map<FinancialProfile, Integer> profilePoints = questionRules.get(answer.getSelectedOption());
 
             if (profilePoints == null) {
-                throw new IllegalArgumentException(
+                throw new InvalidFinancialProfileAssessmentException(
                         "Option not mapped: "
                                 + answer.getSelectedOption());
             }
