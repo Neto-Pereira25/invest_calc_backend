@@ -1,5 +1,6 @@
 package br.edu.ifpe.pdsc.investCalc.investCalc.controllers;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -7,12 +8,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.ApiResponse;
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.AuthResponse;
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.ForgotPasswordRequest;
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.LoginRequest;
+import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.PasswordResetTokenResponse;
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.RefreshRequest;
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.RegisterRequest;
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.ResetPasswordRequest;
@@ -85,5 +88,14 @@ public class AuthController {
     @GetMapping("/admin")
     public String adminRoute() {
         return "admin";
+    }
+
+    @Profile("e2e")
+    @GetMapping("/e2e/password-reset-token")
+    public ApiResponse<PasswordResetTokenResponse> getPasswordResetTokenForE2E(
+            @RequestParam String email) {
+        String token = authService.getPasswordResetTokenForE2E(email);
+        return new ApiResponse<>(new PasswordResetTokenResponse(token), "Token recuperado com sucesso");
+
     }
 }
