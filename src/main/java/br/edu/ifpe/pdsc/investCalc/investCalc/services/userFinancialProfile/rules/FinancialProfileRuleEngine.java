@@ -3,9 +3,12 @@ package br.edu.ifpe.pdsc.investCalc.investCalc.services.userFinancialProfile.rul
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.stereotype.Component;
+
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.userFinancialProfile.FinancialProfileAnswerRequestDTO;
 import br.edu.ifpe.pdsc.investCalc.investCalc.enums.userFinancialProfile.FinancialProfile;
 
+@Component
 public class FinancialProfileRuleEngine {
 
     public FinancialProfileScore calculate(
