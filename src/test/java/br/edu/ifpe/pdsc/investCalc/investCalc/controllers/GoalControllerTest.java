@@ -32,6 +32,7 @@ import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.goals.GoalResponseDTO;
 import br.edu.ifpe.pdsc.investCalc.investCalc.entities.User;
 import br.edu.ifpe.pdsc.investCalc.investCalc.enums.GoalStatus;
 import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.GlobalExceptionHandler;
+import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.UserNotFoundException;
 import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.goals.GoalNotFoundException;
 import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.goals.UnauthorizedGoalAccessException;
 import br.edu.ifpe.pdsc.investCalc.investCalc.security.JwtAuthenticationFilter;
@@ -202,5 +203,15 @@ class GoalControllerTest {
         mockMvc.perform(delete("/api/v1/goals/1"))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.message").value("Voce nao possui permissao para acessar esta meta financeira"));
+    }
+
+    @Test
+    @DisplayName("GET /api/v1/goals - should return 404 when authenticated user is not found")
+    void shouldReturn404WhenAuthenticatedUserIsNotFound() throws Exception {
+        when(userService.getAuthenticatedUser(any())).thenThrow(new UserNotFoundException());
+
+        mockMvc.perform(get("/api/v1/goals"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Usuario nao encontrado"));
     }
 }

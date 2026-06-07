@@ -18,6 +18,8 @@ import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.monthlySpendingLimit.Sp
 import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.transaction.SubcategoryNotFoundException;
 import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.transaction.TransactionNotFoundException;
 import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.transaction.UnauthorizedTransactionAccessException;
+import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.userFinancialProfile.FinancialProfileNotFoundException;
+import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.userFinancialProfile.InvalidFinancialProfileAssessmentException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -44,14 +46,16 @@ public class GlobalExceptionHandler {
         }
 
         @ExceptionHandler(InvalidPasswordResetTokenException.class)
-        public ResponseEntity<ApiResponse<Object>> handleInvalidPasswordResetToken(InvalidPasswordResetTokenException ex) {
+        public ResponseEntity<ApiResponse<Object>> handleInvalidPasswordResetToken(
+                        InvalidPasswordResetTokenException ex) {
                 return ResponseEntity
                                 .status(HttpStatus.BAD_REQUEST)
                                 .body(new ApiResponse<>(null, ex.getMessage()));
         }
 
         @ExceptionHandler(PasswordResetTokenExpiredException.class)
-        public ResponseEntity<ApiResponse<Object>> handlePasswordResetTokenExpired(PasswordResetTokenExpiredException ex) {
+        public ResponseEntity<ApiResponse<Object>> handlePasswordResetTokenExpired(
+                        PasswordResetTokenExpiredException ex) {
                 return ResponseEntity
                                 .status(HttpStatus.BAD_REQUEST)
                                 .body(new ApiResponse<>(null, ex.getMessage()));
@@ -188,6 +192,24 @@ public class GlobalExceptionHandler {
 
                 return ResponseEntity
                                 .status(HttpStatus.NOT_FOUND)
+                                .body(new ApiResponse<>(null, ex.getMessage()));
+        }
+
+        @ExceptionHandler(FinancialProfileNotFoundException.class)
+        public ResponseEntity<ApiResponse<Object>> handleFinancialProfileNotFound(
+                        FinancialProfileNotFoundException ex) {
+
+                return ResponseEntity
+                                .status(HttpStatus.NOT_FOUND)
+                                .body(new ApiResponse<>(null, ex.getMessage()));
+        }
+
+        @ExceptionHandler(InvalidFinancialProfileAssessmentException.class)
+        public ResponseEntity<ApiResponse<Object>> handleInvalidFinancialProfileAssessment(
+                        InvalidFinancialProfileAssessmentException ex) {
+
+                return ResponseEntity
+                                .status(HttpStatus.UNPROCESSABLE_ENTITY)
                                 .body(new ApiResponse<>(null, ex.getMessage()));
         }
 }
