@@ -1,4 +1,4 @@
-package br.edu.ifpe.pdsc.investCalc.investCalc.services.userFinancialProfile;
+package br.edu.ifpe.pdsc.investCalc.investCalc.services.userFinancialProfile.rules;
 
 import java.util.Comparator;
 import java.util.EnumMap;
