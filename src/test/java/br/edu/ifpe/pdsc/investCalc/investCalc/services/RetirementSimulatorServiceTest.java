@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.RetirementSimulatorRequest;
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.RetirementSimulatorResponse;
 import br.edu.ifpe.pdsc.investCalc.investCalc.enums.PeriodType;
+import br.edu.ifpe.pdsc.investCalc.investCalc.enums.RateInputType;
 import br.edu.ifpe.pdsc.investCalc.investCalc.enums.RateType;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
@@ -42,6 +43,7 @@ class RetirementSimulatorServiceTest {
                 PeriodType.ANNUAL,
                 RateType.YEARLY,
                 null,
+                null,
                 null);
 
         RetirementSimulatorResponse response = service.simulate(request);
@@ -64,6 +66,7 @@ class RetirementSimulatorServiceTest {
                 1,
                 PeriodType.ANNUAL,
                 RateType.YEARLY,
+                null,
                 BigDecimal.valueOf(12),
                 BigDecimal.valueOf(4));
 
@@ -84,6 +87,7 @@ class RetirementSimulatorServiceTest {
                 24,
                 PeriodType.MONTHLY,
                 RateType.MONTHLY,
+                null,
                 BigDecimal.ZERO,
                 BigDecimal.valueOf(5));
 
@@ -102,6 +106,7 @@ class RetirementSimulatorServiceTest {
                 25,
                 PeriodType.ANNUAL,
                 RateType.YEARLY,
+                null,
                 BigDecimal.valueOf(0.04),
                 BigDecimal.valueOf(0.04));
 
@@ -130,6 +135,7 @@ class RetirementSimulatorServiceTest {
                 PeriodType.ANNUAL,
                 RateType.YEARLY,
                 null,
+                null,
                 null);
 
         assertThrows(NullPointerException.class, () -> service.simulate(request));
@@ -142,6 +148,7 @@ class RetirementSimulatorServiceTest {
                 BigDecimal.valueOf(-1),
                 BigDecimal.ZERO,
                 0,
+                null,
                 null,
                 null,
                 BigDecimal.valueOf(-1),
@@ -160,5 +167,62 @@ class RetirementSimulatorServiceTest {
         assertTrue(violations.stream().anyMatch(v -> v.getMessage().equals("Inflação anual deve ser >= 0")));
         assertTrue(violations.stream()
                 .anyMatch(v -> v.getMessage().equals("Taxa de retirada segura deve ser maior que zero")));
+    }
+
+    @Test
+    void shouldSupportExplicitPercentageInputForMonthlyRate() {
+
+        RetirementSimulatorRequest request = new RetirementSimulatorRequest(
+                BigDecimal.valueOf(5000),
+                BigDecimal.valueOf(0.95),
+                25,
+                PeriodType.ANNUAL,
+                RateType.MONTHLY,
+                RateInputType.PERCENTAGE,
+                BigDecimal.valueOf(0.04),
+                BigDecimal.valueOf(0.1));
+
+        RetirementSimulatorResponse response = service.simulate(request);
+
+        assertEquals(BigDecimal.valueOf(13329.18).setScale(2), response.getInflationAdjustedMonthlyIncome());
+        assertEquals(BigDecimal.valueOf(1599501.80).setScale(2), response.getTargetAmount());
+        assertEquals(BigDecimal.valueOf(946.35).setScale(2), response.getRequiredMonthlyContribution());
+        assertEquals(300, response.getMonthsToRetirement());
+    }
+
+    @Test
+    void shouldTreatLegacyMonthlyRateBelowOneAsPercentageWhenInputTypeIsNotInformed() {
+
+        RetirementSimulatorRequest request = new RetirementSimulatorRequest(
+                BigDecimal.valueOf(5000),
+                BigDecimal.valueOf(0.95),
+                25,
+                PeriodType.ANNUAL,
+                RateType.MONTHLY,
+                null,
+                BigDecimal.valueOf(0.04),
+                BigDecimal.valueOf(0.1));
+
+        RetirementSimulatorResponse response = service.simulate(request);
+
+        assertEquals(BigDecimal.valueOf(946.35).setScale(2), response.getRequiredMonthlyContribution());
+    }
+
+    @Test
+    void shouldSupportExplicitDecimalInputForMonthlyRate() {
+
+        RetirementSimulatorRequest request = new RetirementSimulatorRequest(
+                BigDecimal.valueOf(5000),
+                BigDecimal.valueOf(0.95),
+                25,
+                PeriodType.ANNUAL,
+                RateType.MONTHLY,
+                RateInputType.DECIMAL,
+                BigDecimal.valueOf(0.04),
+                BigDecimal.valueOf(0.1));
+
+        RetirementSimulatorResponse response = service.simulate(request);
+
+        assertEquals(BigDecimal.valueOf(0.00).setScale(2), response.getRequiredMonthlyContribution());
     }
 }

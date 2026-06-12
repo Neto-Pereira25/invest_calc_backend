@@ -3,6 +3,7 @@ package br.edu.ifpe.pdsc.investCalc.investCalc.dtos;
 import java.math.BigDecimal;
 
 import br.edu.ifpe.pdsc.investCalc.investCalc.enums.PeriodType;
+import br.edu.ifpe.pdsc.investCalc.investCalc.enums.RateInputType;
 import br.edu.ifpe.pdsc.investCalc.investCalc.enums.RateType;
 import br.edu.ifpe.pdsc.investCalc.investCalc.enums.ReverseSimulationMode;
 import jakarta.validation.constraints.DecimalMin;
@@ -29,6 +30,8 @@ public class ReverseSimulationRequest {
 
     @NotNull(message = "Tipo de taxa é obrigatório")
     private RateType rateType;
+
+    private RateInputType interestRateInputType;
 
     @NotNull(message = "Modo da simulação reversa é obrigatório")
     private ReverseSimulationMode mode;

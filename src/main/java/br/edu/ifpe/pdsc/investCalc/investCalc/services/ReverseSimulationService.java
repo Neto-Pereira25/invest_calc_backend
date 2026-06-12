@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.ReverseSimulationRequest;
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.ReverseSimulationResponse;
 import br.edu.ifpe.pdsc.investCalc.investCalc.enums.PeriodType;
+import br.edu.ifpe.pdsc.investCalc.investCalc.enums.RateInputType;
 import br.edu.ifpe.pdsc.investCalc.investCalc.enums.RateType;
 import br.edu.ifpe.pdsc.investCalc.investCalc.enums.ReverseSimulationMode;
 import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.InvalidReverseSimulationRequestException;
@@ -20,7 +21,10 @@ public class ReverseSimulationService {
 
     public ReverseSimulationResponse simulate(ReverseSimulationRequest request) {
 
-        BigDecimal monthlyRate = convertRate(request.getInterestRate(), request.getRateType());
+        BigDecimal monthlyRate = convertRate(
+                request.getInterestRate(),
+                request.getRateType(),
+                request.getInterestRateInputType());
 
         if (ReverseSimulationMode.CALCULATE_CONTRIBUTION.equals(request.getMode())) {
             validateContributionMode(request);
@@ -110,19 +114,42 @@ public class ReverseSimulationService {
         return (int) Math.ceil(numerator / denominator);
     }
 
-    private BigDecimal convertRate(BigDecimal interestRate, RateType rateType) {
+    private BigDecimal convertRate(BigDecimal interestRate, RateType rateType, RateInputType rateInputType) {
 
-        BigDecimal rate = normalizeRate(interestRate);
+        BigDecimal rate = normalizeInterestRate(interestRate, rateType, rateInputType);
 
         if (RateType.YEARLY.equals(rateType)) {
-            return convertAnnualRateToMonthly(interestRate);
+            return convertAnnualRateToMonthlyFromDecimal(rate);
         }
 
         return rate;
     }
 
+    private BigDecimal normalizeInterestRate(
+            BigDecimal interestRate,
+            RateType rateType,
+            RateInputType rateInputType) {
+        if (RateInputType.DECIMAL.equals(rateInputType)) {
+            return interestRate;
+        }
+
+        if (RateInputType.PERCENTAGE.equals(rateInputType)) {
+            return interestRate.divide(ONE_HUNDRED, 10, RoundingMode.HALF_UP);
+        }
+
+        if (RateType.MONTHLY.equals(rateType) && interestRate.compareTo(BigDecimal.ONE) <= 0) {
+            return interestRate.divide(ONE_HUNDRED, 10, RoundingMode.HALF_UP);
+        }
+
+        return normalizeRate(interestRate);
+    }
+
     private BigDecimal convertAnnualRateToMonthly(BigDecimal annualRatePercentage) {
         BigDecimal annualRateDecimal = normalizeRate(annualRatePercentage);
+        return convertAnnualRateToMonthlyFromDecimal(annualRateDecimal);
+    }
+
+    private BigDecimal convertAnnualRateToMonthlyFromDecimal(BigDecimal annualRateDecimal) {
         return BigDecimal.valueOf(Math.pow(1 + annualRateDecimal.doubleValue(), 1.0 / 12) - 1);
     }
 

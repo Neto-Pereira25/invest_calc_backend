@@ -3,6 +3,7 @@ package br.edu.ifpe.pdsc.investCalc.investCalc.dtos;
 import java.math.BigDecimal;
 
 import br.edu.ifpe.pdsc.investCalc.investCalc.enums.PeriodType;
+import br.edu.ifpe.pdsc.investCalc.investCalc.enums.RateInputType;
 import br.edu.ifpe.pdsc.investCalc.investCalc.enums.RateType;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
@@ -35,6 +36,8 @@ public class RetirementSimulatorRequest {
 
     @NotNull(message = "Tipo de taxa é obrigatório")
     private RateType rateType;
+
+    private RateInputType interestRateInputType;
 
     @DecimalMin(value = "0.0", inclusive = true, message = "Inflação anual deve ser >= 0")
     private BigDecimal annualInflationRate;
