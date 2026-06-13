@@ -17,9 +17,11 @@ import org.springframework.web.bind.annotation.RestController;
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.ApiResponse;
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.FinancialTransactionRequest;
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.FinancialTransactionResponse;
+import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.repeatedExpense.RepeatedExpenseResponse;
 import br.edu.ifpe.pdsc.investCalc.investCalc.entities.User;
 import br.edu.ifpe.pdsc.investCalc.investCalc.services.FinancialTransactionService;
 import br.edu.ifpe.pdsc.investCalc.investCalc.services.UserService;
+import br.edu.ifpe.pdsc.investCalc.investCalc.services.repeatedExpense.RepeatedExpenseService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -30,6 +32,7 @@ public class FinancialTransactionController {
 
         private final FinancialTransactionService financialTransactionService;
         private final UserService userService;
+        private final RepeatedExpenseService repeatedExpenseService;
 
         @PostMapping
         public ApiResponse<FinancialTransactionResponse> createFinancialTransaction(
@@ -55,6 +58,18 @@ public class FinancialTransactionController {
 
                 return ResponseEntity
                                 .ok(new ApiResponse<>(transactions, "Transações financeiras listadas com sucessos."));
+        }
+
+        @GetMapping("/recurring-expenses")
+        public ResponseEntity<ApiResponse<List<RepeatedExpenseResponse>>> listRecurringExpenses(
+                        @AuthenticationPrincipal UserDetails userDetails) {
+
+                User user = userService.getAuthenticatedUser(userDetails);
+
+                List<RepeatedExpenseResponse> recurringExpenses = repeatedExpenseService.getRecurringExpenses(user);
+
+                return ResponseEntity.ok(new ApiResponse<>(recurringExpenses,
+                                "Gastos recorrentes listados com sucesso."));
         }
 
         @PutMapping("/{id}")
