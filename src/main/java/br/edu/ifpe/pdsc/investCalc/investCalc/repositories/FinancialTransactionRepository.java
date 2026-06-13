@@ -13,5 +13,8 @@ public interface FinancialTransactionRepository extends JpaRepository<FinancialT
 
     List<FinancialTransaction> findByUser(User user);
 
-    List<FinancialTransaction> findByUserAndTypeAndDateBetween(User user, TransactionType type, LocalDate startDate, LocalDate endDate);
+    List<FinancialTransaction> findByUserAndTypeAndDateBetween(User user, TransactionType type, LocalDate startDate,
+            LocalDate endDate);
+
+    List<FinancialTransaction> findByUserAndType(User user, TransactionType type);
 }
