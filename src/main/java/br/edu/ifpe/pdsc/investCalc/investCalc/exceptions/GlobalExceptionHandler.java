@@ -212,4 +212,13 @@ public class GlobalExceptionHandler {
                                 .status(HttpStatus.UNPROCESSABLE_ENTITY)
                                 .body(new ApiResponse<>(null, ex.getMessage()));
         }
+
+        @ExceptionHandler(InvalidReverseSimulationRequestException.class)
+        public ResponseEntity<ApiResponse<Object>> handleInvalidReverseSimulationRequest(
+                        InvalidReverseSimulationRequestException ex) {
+
+                return ResponseEntity
+                                .status(HttpStatus.UNPROCESSABLE_ENTITY)
+                                .body(new ApiResponse<>(null, ex.getMessage()));
+        }
 }
