@@ -27,6 +27,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.FinancialTransactionResponse;
+import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.repeatedExpense.RepeatedExpenseResponse;
 import br.edu.ifpe.pdsc.investCalc.investCalc.entities.User;
 import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.GlobalExceptionHandler;
 import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.UserNotFoundException;
@@ -35,6 +36,7 @@ import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.transaction.Unauthorize
 import br.edu.ifpe.pdsc.investCalc.investCalc.security.JwtAuthenticationFilter;
 import br.edu.ifpe.pdsc.investCalc.investCalc.services.FinancialTransactionService;
 import br.edu.ifpe.pdsc.investCalc.investCalc.services.UserService;
+import br.edu.ifpe.pdsc.investCalc.investCalc.services.repeatedExpense.RepeatedExpenseService;
 
 @WebMvcTest(controllers = FinancialTransactionController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -49,6 +51,9 @@ public class FinancialTransactionControllerTest {
 
         @MockBean
         private UserService userService;
+
+        @MockBean
+        private RepeatedExpenseService repeatedExpenseService;
 
         @MockBean
         private JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -152,6 +157,28 @@ public class FinancialTransactionControllerTest {
                 mockMvc.perform(get("/api/v1/financial-transactions"))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.data").isEmpty());
+        }
+
+        @Test
+        @DisplayName("GET /api/v1/financial-transactions/recurring-expenses - should list recurring expenses")
+        void shouldListRecurringExpenses() throws Exception {
+
+                RepeatedExpenseResponse recurringExpense = new RepeatedExpenseResponse(
+                                "netflix",
+                                "Lazer",
+                                "Streaming",
+                                BigDecimal.valueOf(41.57),
+                                3);
+
+                when(userService.getAuthenticatedUser(any())).thenReturn(user);
+                when(repeatedExpenseService.getRecurringExpenses(user)).thenReturn(List.of(recurringExpense));
+
+                mockMvc.perform(get("/api/v1/financial-transactions/recurring-expenses"))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.data").isArray())
+                                .andExpect(jsonPath("$.data[0].description").value("netflix"))
+                                .andExpect(jsonPath("$.data[0].frequency").value(3))
+                                .andExpect(jsonPath("$.message").value("Gastos recorrentes listados com sucesso."));
         }
 
         // =========================
