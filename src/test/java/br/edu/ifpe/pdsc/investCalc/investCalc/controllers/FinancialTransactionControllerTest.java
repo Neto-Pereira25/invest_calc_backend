@@ -29,6 +29,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import br.edu.ifpe.pdsc.investCalc.investCalc.dtos.FinancialTransactionResponse;
 import br.edu.ifpe.pdsc.investCalc.investCalc.entities.User;
 import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.GlobalExceptionHandler;
+import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.UserNotFoundException;
 import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.transaction.TransactionNotFoundException;
 import br.edu.ifpe.pdsc.investCalc.investCalc.exceptions.transaction.UnauthorizedTransactionAccessException;
 import br.edu.ifpe.pdsc.investCalc.investCalc.security.JwtAuthenticationFilter;
@@ -40,199 +41,211 @@ import br.edu.ifpe.pdsc.investCalc.investCalc.services.UserService;
 @Import(GlobalExceptionHandler.class)
 public class FinancialTransactionControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+        @Autowired
+        private MockMvc mockMvc;
 
-    @MockBean
-    private FinancialTransactionService transactionService;
+        @MockBean
+        private FinancialTransactionService transactionService;
 
-    @MockBean
-    private UserService userService;
+        @MockBean
+        private UserService userService;
 
-    @MockBean
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
+        @MockBean
+        private JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    private User user;
-    private FinancialTransactionResponse response;
+        private User user;
+        private FinancialTransactionResponse response;
 
-    @BeforeEach
-    void setup() {
-        user = new User();
-        user.setId(1L);
-        user.setEmail("user@email.com");
+        @BeforeEach
+        void setup() {
+                user = new User();
+                user.setId(1L);
+                user.setEmail("user@email.com");
 
-        response = new FinancialTransactionResponse(
-                1L,
-                "Almoço",
-                BigDecimal.valueOf(50),
-                null,
-                "Alimentação",
-                "Restaurante",
-                LocalDate.now());
-    }
+                response = new FinancialTransactionResponse(
+                                1L,
+                                "Almoço",
+                                BigDecimal.valueOf(50),
+                                null,
+                                "Alimentação",
+                                "Restaurante",
+                                LocalDate.now());
+        }
 
-    // ==========
-    // CREATE
-    // ==========
+        // ==========
+        // CREATE
+        // ==========
 
-    @Test
-    @DisplayName("POST /api/v1/financial-transactions - should create transaction successfully")
-    void shouldCreateTransactionSuccessfully() throws Exception {
+        @Test
+        @DisplayName("POST /api/v1/financial-transactions - should create transaction successfully")
+        void shouldCreateTransactionSuccessfully() throws Exception {
 
-        when(userService.getAuthenticatedUser(any())).thenReturn(user);
+                when(userService.getAuthenticatedUser(any())).thenReturn(user);
 
-        when(transactionService.createFinancialTransaction(any(), any()))
-                .thenReturn(response);
+                when(transactionService.createFinancialTransaction(any(), any()))
+                                .thenReturn(response);
 
-        String requestBody = """
-                    {
-                        "amount": 100,
-                        "description": "Almoço",
-                        "date": "2026-05-01",
-                        "subcategoryId": 1
-                    }
-                """;
+                String requestBody = """
+                                    {
+                                        "amount": 100,
+                                        "description": "Almoço",
+                                        "date": "2026-05-01",
+                                        "subcategoryId": 1
+                                    }
+                                """;
 
-        mockMvc.perform(post("/api/v1/financial-transactions")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.description").value("Almoço"))
-                .andExpect(jsonPath("$.message").exists());
-    }
+                mockMvc.perform(post("/api/v1/financial-transactions")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(requestBody))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.data.description").value("Almoço"))
+                                .andExpect(jsonPath("$.message").exists());
+        }
 
-    @Test
-    @DisplayName("POST /api/v1/financial-transactions - should return validation error")
-    void shouldReturnValidationErrorWhenCreatingInvalidTransaction() throws Exception {
+        @Test
+        @DisplayName("POST /api/v1/financial-transactions - should return validation error")
+        void shouldReturnValidationErrorWhenCreatingInvalidTransaction() throws Exception {
 
-        String requestBody = """
-                {
-                    "amount": 0,
-                    "description": "",
-                    "date": null,
-                    "subcategoryId": null
-                }
-                """;
+                String requestBody = """
+                                {
+                                    "amount": 0,
+                                    "description": "",
+                                    "date": null,
+                                    "subcategoryId": null
+                                }
+                                """;
 
-        mockMvc.perform(post("/api/v1/financial-transactions")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
-                .andExpect(status().isUnprocessableEntity())
-                .andExpect(jsonPath("$.data").isArray())
-                .andExpect(jsonPath("$.message").value("Erro de validacao"));
-    }
+                mockMvc.perform(post("/api/v1/financial-transactions")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(requestBody))
+                                .andExpect(status().isUnprocessableEntity())
+                                .andExpect(jsonPath("$.data").isArray())
+                                .andExpect(jsonPath("$.message").value("Erro de validacao"));
+        }
 
-    // =========================
-    // LIST
-    // =========================
+        // =========================
+        // LIST
+        // =========================
 
-    @Test
-    @DisplayName("GET /api/v1/financial-transactions - should list transactions")
-    void shouldListTransactions() throws Exception {
+        @Test
+        @DisplayName("GET /api/v1/financial-transactions - should list transactions")
+        void shouldListTransactions() throws Exception {
 
-        when(userService.getAuthenticatedUser(any())).thenReturn(user);
-        when(transactionService.listByUser(user))
-                .thenReturn(List.of(response));
+                when(userService.getAuthenticatedUser(any())).thenReturn(user);
+                when(transactionService.listByUser(user))
+                                .thenReturn(List.of(response));
 
-        mockMvc.perform(get("/api/v1/financial-transactions"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data").isArray())
-                .andExpect(jsonPath("$.data[0].description").value("Almoço"));
-    }
+                mockMvc.perform(get("/api/v1/financial-transactions"))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.data").isArray())
+                                .andExpect(jsonPath("$.data[0].description").value("Almoço"));
+        }
 
-    @Test
-    @DisplayName("GET /api/v1/financial-transactions - should return empty list")
-    void shouldReturnEmptyList() throws Exception {
+        @Test
+        @DisplayName("GET /api/v1/financial-transactions - should return empty list")
+        void shouldReturnEmptyList() throws Exception {
 
-        when(userService.getAuthenticatedUser(any())).thenReturn(user);
-        when(transactionService.listByUser(user))
-                .thenReturn(List.of());
+                when(userService.getAuthenticatedUser(any())).thenReturn(user);
+                when(transactionService.listByUser(user))
+                                .thenReturn(List.of());
 
-        mockMvc.perform(get("/api/v1/financial-transactions"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data").isEmpty());
-    }
+                mockMvc.perform(get("/api/v1/financial-transactions"))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.data").isEmpty());
+        }
 
-    // =========================
-    // UPDATE
-    // =========================
+        // =========================
+        // UPDATE
+        // =========================
 
-    @Test
-    @DisplayName("PUT /api/v1/financial-transactions/{id} - should update successfully")
-    void shouldUpdateTransactionSuccessfully() throws Exception {
+        @Test
+        @DisplayName("PUT /api/v1/financial-transactions/{id} - should update successfully")
+        void shouldUpdateTransactionSuccessfully() throws Exception {
 
-        when(userService.getAuthenticatedUser(any())).thenReturn(user);
-        when(transactionService.updateFinancialTransaction(any(), any(), any()))
-                .thenReturn(response);
+                when(userService.getAuthenticatedUser(any())).thenReturn(user);
+                when(transactionService.updateFinancialTransaction(any(), any(), any()))
+                                .thenReturn(response);
 
-        String requestBody = """
-                {
-                    "amount": 150,
-                    "description": "Jantar",
-                    "date": "2026-05-01",
-                    "subcategoryId": 1
-                }
-                """;
+                String requestBody = """
+                                {
+                                    "amount": 150,
+                                    "description": "Jantar",
+                                    "date": "2026-05-01",
+                                    "subcategoryId": 1
+                                }
+                                """;
 
-        mockMvc.perform(put("/api/v1/financial-transactions/1")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.description").value("Almoço"));
-    }
+                mockMvc.perform(put("/api/v1/financial-transactions/1")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(requestBody))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.data.description").value("Almoço"));
+        }
 
-    @Test
-    @DisplayName("PUT /api/v1/financial-transactions/{id} - should return 404")
-    void shouldReturn404WhenTransactionNotFound() throws Exception {
+        @Test
+        @DisplayName("PUT /api/v1/financial-transactions/{id} - should return 404")
+        void shouldReturn404WhenTransactionNotFound() throws Exception {
 
-        when(userService.getAuthenticatedUser(any())).thenReturn(user);
+                when(userService.getAuthenticatedUser(any())).thenReturn(user);
 
-        when(transactionService.updateFinancialTransaction(any(), any(), any()))
-                .thenThrow(new TransactionNotFoundException());
+                when(transactionService.updateFinancialTransaction(any(), any(), any()))
+                                .thenThrow(new TransactionNotFoundException());
 
-        String requestBody = """
-                {
-                    "amount": 150,
-                    "description": "Jantar",
-                    "date": "2026-05-01",
-                    "subcategoryId": 1
-                }
-                """;
+                String requestBody = """
+                                {
+                                    "amount": 150,
+                                    "description": "Jantar",
+                                    "date": "2026-05-01",
+                                    "subcategoryId": 1
+                                }
+                                """;
 
-        mockMvc.perform(put("/api/v1/financial-transactions/1")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.message").value("Transacao nao encontrada"));
-    }
+                mockMvc.perform(put("/api/v1/financial-transactions/1")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(requestBody))
+                                .andExpect(status().isNotFound())
+                                .andExpect(jsonPath("$.message").value("Transacao nao encontrada"));
+        }
 
-    // =========================
-    // DELETE
-    // =========================
+        // =========================
+        // DELETE
+        // =========================
 
-    @Test
-    @DisplayName("DELETE /api/v1/financial-transactions/{id} - should delete successfully")
-    void shouldDeleteTransactionSuccessfully() throws Exception {
+        @Test
+        @DisplayName("DELETE /api/v1/financial-transactions/{id} - should delete successfully")
+        void shouldDeleteTransactionSuccessfully() throws Exception {
 
-        when(userService.getAuthenticatedUser(any())).thenReturn(user);
-        doNothing().when(transactionService).deleteFinancialTransaction(any(), any());
+                when(userService.getAuthenticatedUser(any())).thenReturn(user);
+                doNothing().when(transactionService).deleteFinancialTransaction(any(), any());
 
-        mockMvc.perform(delete("/api/v1/financial-transactions/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Transação financeira deletada com sucesso."));
-    }
+                mockMvc.perform(delete("/api/v1/financial-transactions/1"))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.message").value("Transação financeira deletada com sucesso."));
+        }
 
-    @Test
-    @DisplayName("DELETE /api/v1/financial-transactions/{id} - should return 403 when access denied")
-    void shouldReturn403WhenDeletingFromAnotherUser() throws Exception {
+        @Test
+        @DisplayName("DELETE /api/v1/financial-transactions/{id} - should return 403 when access denied")
+        void shouldReturn403WhenDeletingFromAnotherUser() throws Exception {
 
-        when(userService.getAuthenticatedUser(any())).thenReturn(user);
+                when(userService.getAuthenticatedUser(any())).thenReturn(user);
 
-        doThrow(new UnauthorizedTransactionAccessException())
-                .when(transactionService).deleteFinancialTransaction(any(), any());
+                doThrow(new UnauthorizedTransactionAccessException())
+                                .when(transactionService).deleteFinancialTransaction(any(), any());
 
-        mockMvc.perform(delete("/api/v1/financial-transactions/1"))
-                .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.message").value("Usuario nao autorizado a realizar esta operacao"));
-    }
+                mockMvc.perform(delete("/api/v1/financial-transactions/1"))
+                                .andExpect(status().isForbidden())
+                                .andExpect(jsonPath("$.message")
+                                                .value("Usuario nao autorizado a realizar esta operacao"));
+        }
+
+        @Test
+        @DisplayName("GET /api/v1/financial-transactions - should return 404 when authenticated user is not found")
+        void shouldReturn404WhenAuthenticatedUserIsNotFound() throws Exception {
+
+                when(userService.getAuthenticatedUser(any())).thenThrow(new UserNotFoundException());
+
+                mockMvc.perform(get("/api/v1/financial-transactions"))
+                                .andExpect(status().isNotFound())
+                                .andExpect(jsonPath("$.message").value("Usuario nao encontrado"));
+        }
 }
